@@ -80,19 +80,23 @@ body::before{
 .nav-inner{
   max-width:1320px;margin:0 auto;padding:0 28px;
   display:flex;align-items:center;gap:20px;height:76px;
-  transition:height .3s ease;
+  /* No height transition. .nav is position:sticky, i.e. in normal flow, so
+     animating its height re-lays-out the whole document on every frame of the
+     transition (~18 full layouts per crossing of the 8px scroll threshold).
+     The collapse now snaps in one layout; .nav's colour/shadow fades below
+     still carry the animation. Same reason for .brand-mark and .brand-name. */
 }
 .brand{display:flex;align-items:center;gap:13px;text-decoration:none;min-height:44px;flex:0 1 auto;min-width:0}
 /* The marks are wrapped in <picture>; display:contents keeps the <img> itself as
    the flex item so .brand-mark sizing still applies and a display:none mark
    doesn't leave an empty wrapper eating a 13px gap. */
 .brand picture{display:contents}
-.brand-mark{width:auto;height:58px;aspect-ratio:214/240;flex:none;transition:height .3s ease}
+.brand-mark{width:auto;height:58px;aspect-ratio:214/240;flex:none}
 .mark-cream{display:none}
 .brand-text{display:flex;flex-direction:column;gap:5px;line-height:1;min-width:0}
 .brand-name{
   font-family:var(--font-head);font-weight:700;font-size:1.72rem;color:var(--text);
-  letter-spacing:.01em;line-height:1;white-space:nowrap;transition:color .3s,font-size .3s;
+  letter-spacing:.01em;line-height:1;white-space:nowrap;transition:color .3s;
 }
 .brand-tag{
   font-size:.7rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;
