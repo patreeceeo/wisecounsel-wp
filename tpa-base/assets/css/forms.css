@@ -1,0 +1,122 @@
+/* ══════════════════════════════════════════════
+   TPA Base — WPForms Style Overrides
+   Per Design Ref: "warm, not clinical."
+   Soft borders, generous padding, body font.
+   Form max width: 500-550px.
+   ══════════════════════════════════════════════ */
+
+/* ── Container ── */
+.wpforms-container {
+    max-width: 550px;
+}
+
+/* ── Labels ── */
+.wpforms-container .wpforms-field-label {
+    font-family: var(--body-font);
+    font-size: .85rem;
+    font-weight: 500;
+    color: inherit;
+    opacity: .8;
+    margin-bottom: .4rem;
+}
+
+/* ── Input Fields ── */
+.wpforms-container input[type="text"],
+.wpforms-container input[type="email"],
+.wpforms-container input[type="tel"],
+.wpforms-container input[type="url"],
+.wpforms-container input[type="number"],
+.wpforms-container select,
+.wpforms-container textarea {
+    width: 100%;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, .2);
+    color: inherit;
+    font-family: var(--body-font);
+    font-size: .9rem;
+    padding: .85rem 1rem;
+    margin-bottom: .2rem;
+    outline: none;
+    transition: border-color .3s;
+    border-radius: 0;
+    -webkit-appearance: none;
+}
+
+.wpforms-container input:focus,
+.wpforms-container select:focus,
+.wpforms-container textarea:focus {
+    border-color: var(--accent);
+}
+
+/* On light backgrounds, use darker borders */
+.final-cta--form-only .wpforms-container input[type="text"],
+.final-cta--form-only .wpforms-container input[type="email"],
+.final-cta--form-only .wpforms-container input[type="tel"],
+.final-cta--form-only .wpforms-container select,
+.final-cta--form-only .wpforms-container textarea {
+    border-color: rgba(44, 47, 51, .2);
+    color: var(--text);
+}
+
+/* ── Textarea ── */
+.wpforms-container textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* ── Submit Button ── */
+.wpforms-container .wpforms-submit-container {
+    padding-top: .5rem;
+}
+
+.wpforms-container button[type="submit"],
+.wpforms-container .wpforms-submit {
+    width: 100%;
+    background: var(--accent);
+    color: var(--white);
+    border: none;
+    font-family: var(--heading-font);
+    font-size: 1.15rem;
+    letter-spacing: .06em;
+    padding: .9rem;
+    cursor: pointer;
+    transition: background .3s, transform .2s;
+    border-radius: 0;
+    -webkit-appearance: none;
+}
+
+.wpforms-container button[type="submit"]:hover,
+.wpforms-container .wpforms-submit:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+/* ── Error States ── */
+.wpforms-container .wpforms-error {
+    border-color: var(--accent);
+}
+
+.wpforms-container label.wpforms-error {
+    color: var(--accent);
+    font-size: .78rem;
+    margin-top: .2rem;
+}
+
+/* ── Confirmation ── */
+.wpforms-container .wpforms-confirmation-container-full {
+    background: rgba(31, 94, 74, .1);
+    border: 1px solid var(--primary);
+    padding: 1.5rem;
+    color: var(--text);
+    font-size: .95rem;
+}
+
+/* ── CAPTCHA ── */
+.wpforms-container .wpforms-field-captcha {
+    margin-top: .5rem;
+}
+
+/* ── Hide WPForms branding ── */
+.wpforms-container .wpforms-field-hp {
+    display: none !important;
+}

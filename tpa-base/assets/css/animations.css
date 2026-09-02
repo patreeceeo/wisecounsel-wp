@@ -1,0 +1,68 @@
+/* ══════════════════════════════════════════════
+   TPA Base — Scroll-triggered Animations
+   Pre-animation (hidden) states and .visible
+   (revealed) transitions for each direction.
+
+   Matched to patterns across all TPA mockups:
+   - data-direction="up"    → translateY(30px)
+   - data-direction="left"  → translateX(-40px)
+   - data-direction="right" → translateX(40px)
+   - data-direction="fade"  → opacity only
+   - data-direction="scale" → scale(0.92)
+   ══════════════════════════════════════════════ */
+
+/* ── Pre-animation states (hidden) ── */
+[data-anim] {
+    opacity: 0;
+    transition: opacity .7s ease, transform .7s ease;
+}
+
+/* Direction: up (default) */
+[data-anim],
+[data-anim][data-direction="up"] {
+    transform: translateY(30px);
+}
+
+/* Direction: left */
+[data-anim][data-direction="left"] {
+    transform: translateX(-40px);
+}
+
+/* Direction: right */
+[data-anim][data-direction="right"] {
+    transform: translateX(40px);
+}
+
+/* Direction: fade (no transform) */
+[data-anim][data-direction="fade"] {
+    transform: none;
+}
+
+/* Direction: scale */
+[data-anim][data-direction="scale"] {
+    transform: scale(0.92);
+}
+
+/* ── Revealed state ── */
+[data-anim].visible {
+    opacity: 1;
+    transform: translateY(0) translateX(0) scale(1);
+}
+
+/* ── Parallax containers ── */
+[data-parallax] {
+    will-change: transform;
+}
+
+/* ── Reduce motion for accessibility ── */
+@media (prefers-reduced-motion: reduce) {
+    [data-anim] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+
+    [data-parallax] {
+        transform: none !important;
+    }
+}

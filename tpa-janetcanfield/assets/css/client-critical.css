@@ -1,0 +1,327 @@
+/* ===================================================================
+   Wise Counsel – CRITICAL (above-fold) CSS
+   Vars, reset, grain, nav, hero, services stripe.
+   =================================================================== */
+:root{
+  --primary:#8B6F47;
+  --primary-dark:#6E5636;
+  --primary-light:#A8906A;
+  --secondary:#A68B5B;
+  --accent:#6B8B7A;
+  --accent-dark:#54705F;
+  --bg:#FAF8F5;
+  --bg-tan:#F3EDE3;
+  --bg-sage:#EEF1EC;
+  --text:#2D2A26;
+  --text-soft:#5C554B;
+  --cream:#FDFCFA;
+  /* Light footer — pairs with the ink logo lockup and matches the LP footer
+     (#F3EDE3). Was #2D2A26 with light text; the 2026-07-24 switch to the ink
+     logo assumed this change but it never landed, leaving dark-on-dark. */
+  --footer-bg:#F3EDE3;
+  --footer-text:#5C554B;
+  --gold:#EAD9BC;
+  --walnut:#5C4A31;
+  --dark-sage:#35443C;
+  --font-head:'Alegreya',serif;
+  --font-body:'Figtree',sans-serif;
+  --container:1140px;
+  --radius-btn:12px 12px 12px 3px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{overflow-x:clip}
+body{
+  font-family:var(--font-body);
+  font-size:17px;
+  line-height:1.7;
+  color:var(--text);
+  background:var(--bg);
+  padding-bottom:0;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:var(--font-head);line-height:1.18;text-wrap:pretty;color:var(--text)}
+p{text-wrap:pretty}
+img{max-width:100%}
+a{color:var(--primary-dark)}
+.container{max-width:var(--container);margin:0 auto;padding:0 28px}
+
+/* ---------- grain texture ---------- */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.035;
+  background-image:url("../images/grain.svg");
+}
+
+/* ---------- nav ---------- */
+.skip-link{position:absolute;left:-9999px;z-index:300;background:var(--text);color:#FDFCF8;padding:12px 20px;border-radius:0 0 8px 0}
+.skip-link:focus{left:0;top:0}
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(250,248,245,.97);
+  border-bottom:1px solid rgba(139,111,71,.14);
+  transition:box-shadow .3s ease,background .35s ease,border-color .35s ease;
+}
+.nav.scrolled{background:rgba(44,56,51,.97);border-bottom-color:rgba(234,217,188,.14);box-shadow:0 10px 28px -18px rgba(20,16,12,.55)}
+.nav.scrolled .nav-inner{height:60px}
+.nav.scrolled .brand-mark{height:42px}
+.nav.scrolled .mark-ink{display:none}
+.nav.scrolled .mark-cream{display:block}
+.nav.scrolled .brand-name{color:#F5F1E8;font-size:1.4rem}
+.nav.scrolled .brand-name span{color:#EAD9BC}
+.nav.scrolled .brand-tag{color:#D8C8A8}
+.nav.scrolled .nav-links>li>a{color:#F5F1E8;background-image:linear-gradient(#EAD9BC,#EAD9BC)}
+.nav.scrolled .nav-links>li>a:hover{color:#EAD9BC}
+.nav.scrolled .nav-phone{color:#EAD9BC;border-color:rgba(234,217,188,.55);background-image:linear-gradient(#EAD9BC,#EAD9BC)}
+.nav.scrolled .nav-phone:hover{color:#2D2A26}
+.nav.scrolled .nav-cta{background:#EAD9BC;border-color:#EAD9BC;color:#2D2A26}
+.nav.scrolled .nav-cta:hover{background:#D8C095}
+.nav.scrolled .hamburger span{background:#F5F1E8}
+.nav.scrolled .nav-links{top:60px}
+.nav-inner{
+  max-width:1320px;margin:0 auto;padding:0 28px;
+  display:flex;align-items:center;gap:20px;height:76px;
+  transition:height .3s ease;
+}
+.brand{display:flex;align-items:center;gap:13px;text-decoration:none;min-height:44px;flex:0 1 auto;min-width:0}
+/* The marks are wrapped in <picture>; display:contents keeps the <img> itself as
+   the flex item so .brand-mark sizing still applies and a display:none mark
+   doesn't leave an empty wrapper eating a 13px gap. */
+.brand picture{display:contents}
+.brand-mark{width:auto;height:58px;aspect-ratio:214/240;flex:none;transition:height .3s ease}
+.mark-cream{display:none}
+.brand-text{display:flex;flex-direction:column;gap:5px;line-height:1;min-width:0}
+.brand-name{
+  font-family:var(--font-head);font-weight:700;font-size:1.72rem;color:var(--text);
+  letter-spacing:.01em;line-height:1;white-space:nowrap;transition:color .3s,font-size .3s;
+}
+.brand-tag{
+  font-size:.7rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;
+  color:#2D2A26;white-space:nowrap;
+}
+.brand-name span{color:#2D2A26}
+.nav-inner nav{margin:0 auto}
+.nav-links{display:flex;align-items:center;gap:4px;list-style:none;flex-wrap:nowrap;white-space:nowrap}
+.nav-links>li{position:relative}
+.nav-links>li>a{
+  display:block;padding:10px 11px;text-decoration:none;color:var(--text);
+  font-size:.93rem;font-weight:500;letter-spacing:.01em;white-space:nowrap;
+  background-image:linear-gradient(var(--accent),var(--accent));
+  background-size:0 2px;background-repeat:no-repeat;background-position:12px calc(100% - 6px);
+  transition:background-size .28s ease,color .2s;
+}
+.nav-links>li>a:hover{background-size:calc(100% - 24px) 2px;color:#2D2A26}
+/* Dropdown parent (walker: li.dropdown > a.dropdown-toggle) */
+.nav-links .dropdown>a{cursor:default}
+@media (min-width:1025px){.nav-links .dropdown>a{pointer-events:none}}
+.nav-links .dropdown>a::after{content:"";display:inline-block;margin-left:6px;width:7px;height:7px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .25s ease}
+.nav-links .dropdown:hover>a::after,.nav-links .dropdown:focus-within>a::after,.nav-links .dropdown.open>a::after{transform:rotate(225deg) translateY(2px)}
+.nav-links .dropdown-menu{
+  position:absolute;top:100%;left:0;min-width:270px;
+  background:var(--cream);border:1px solid rgba(139,111,71,.16);border-radius:10px;
+  box-shadow:0 18px 40px -18px rgba(45,42,38,.28);
+  padding:8px;list-style:none;
+  opacity:0;visibility:hidden;transform:translateY(8px);
+  transition:opacity .22s ease,transform .22s ease,visibility .22s;
+}
+.nav-links .dropdown:hover .dropdown-menu,.nav-links .dropdown:focus-within .dropdown-menu{opacity:1;visibility:visible;transform:translateY(2px)}
+.nav-links .dropdown-menu li{list-style:none}
+.nav-links .dropdown-menu a{
+  display:block;padding:9px 14px;border-radius:7px;text-decoration:none;
+  color:var(--text-soft);font-size:.9rem;font-weight:500;transition:background .18s,color .18s;
+  background-image:none;
+}
+.nav-links .dropdown-menu a:hover{background:var(--bg-sage);color:var(--accent-dark)}
+.nav-phone{
+  flex:none;display:inline-flex;align-items:center;gap:8px;
+  text-decoration:none;color:#2D2A26;font-weight:600;font-size:.9rem;white-space:nowrap;
+  border:1.5px solid rgba(45,42,38,.5);border-radius:var(--radius-btn);padding:8px 15px;
+  background-image:linear-gradient(#2D2A26,#2D2A26);
+  background-repeat:no-repeat;background-size:0% 100%;background-position:left center;
+  transition:color .28s,background-size .38s cubic-bezier(.25,1,.5,1),border-color .28s,box-shadow .28s;
+}
+.nav-phone svg{width:15px;height:15px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav-phone:hover{color:#FDFCF8;background-size:100% 100%;border-color:#2D2A26;box-shadow:0 6px 18px -8px rgba(45,42,38,.5)}
+@keyframes phone-wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-13deg)}55%{transform:rotate(11deg)}80%{transform:rotate(-5deg)}}
+@media (prefers-reduced-motion:no-preference){
+  .nav-phone:hover svg{animation:phone-wiggle .55s ease}
+}
+.nav-cta{
+  flex:none;display:inline-block;background:var(--accent-dark);color:#fff;text-decoration:none;
+  font-weight:600;font-size:.88rem;padding:10px 20px;border-radius:var(--radius-btn);
+  white-space:nowrap;box-shadow:0 2px 0 rgba(45,42,38,.12);
+  transition:background .22s,box-shadow .22s;position:relative;overflow:hidden;
+}
+.nav-cta:hover{background:#455C4E;box-shadow:0 4px 14px -4px rgba(84,112,95,.55)}
+.nav-cta::before{
+  content:"";position:absolute;top:-2px;bottom:-2px;left:-50%;width:40%;
+  background:linear-gradient(100deg,transparent,rgba(253,252,248,.3),transparent);
+  transform:skewX(-18deg);transition:left .5s cubic-bezier(.25,1,.5,1);pointer-events:none;
+}
+.nav-cta:hover::before{left:125%}
+@media (prefers-reduced-motion:reduce){.nav-cta::before{display:none}}
+.hamburger{display:none;background:none;border:none;cursor:pointer;padding:11px 10px;flex-shrink:0;margin-left:auto}
+.hamburger span{display:block;width:24px;height:2px;background:var(--text);margin:5px 0;transition:transform .3s,opacity .3s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* ---------- hero ---------- */
+.hero{position:relative;min-height:max(474px,calc(100vh - 370px));display:flex;align-items:center;overflow:hidden}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 40%}
+.hero-inner{position:relative;z-index:2;max-width:var(--container);margin:0 auto;padding:26px 28px 44px;width:100%}
+@keyframes heroIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.hero-card{
+  animation:heroIn .8s cubic-bezier(.19,1,.22,1) both;
+  width:fit-content;max-width:100%;text-align:center;background:rgba(47,60,53,.94);
+  padding:36px 40px;border-radius:26px 26px 26px 8px;
+  box-shadow:0 32px 64px -28px rgba(20,16,12,.6);
+}
+.hero-kicker{
+  display:block;margin:0 -40px 20px;padding:11px 40px;
+  background:#5C4A31;color:#EAD9BC;
+  font-family:var(--font-head);font-style:italic;font-weight:600;
+  font-size:clamp(1.22rem,1.8vw,1.5rem);letter-spacing:.01em;
+}
+.hero h1{
+  color:#FDFCF8;font-size:clamp(2.15rem,3.4vw,3.15rem);font-weight:700;
+  margin-bottom:22px;text-shadow:0 2px 26px rgba(45,42,38,.35);
+}
+.hero-tagline{color:rgba(253,252,248,.92);font-size:1.02rem;font-weight:500;max-width:42ch;margin-bottom:26px;margin-left:auto;margin-right:auto}
+.hero-tagline em{font-style:italic;color:inherit;font-weight:600}
+.hero-tagline a{color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;text-decoration-color:rgba(234,217,188,.7);transition:color .2s,text-decoration-color .2s}
+.hero-tagline a:hover{color:#EAD9BC;text-decoration-color:#EAD9BC}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-block;text-decoration:none;font-weight:600;font-size:1rem;
+  padding:16px 34px;border-radius:var(--radius-btn);letter-spacing:.01em;
+  position:relative;overflow:hidden;
+  transition:background .22s,box-shadow .22s,color .22s,border-color .22s;
+}
+.btn::before{
+  content:"";position:absolute;top:-2px;bottom:-2px;left:-48%;width:38%;
+  background:linear-gradient(100deg,transparent,rgba(253,252,248,.34),transparent);
+  transform:skewX(-18deg);transition:left .55s cubic-bezier(.25,1,.5,1);pointer-events:none;
+}
+.btn:hover::before{left:122%}
+.btn::after{
+  content:"→";display:inline-block;max-width:0;height:1em;line-height:1;opacity:0;overflow:hidden;vertical-align:-1px;
+  transition:max-width .35s cubic-bezier(.25,1,.5,1),opacity .25s,margin-left .35s cubic-bezier(.25,1,.5,1);
+}
+.btn:hover::after{max-width:1.2em;opacity:1;margin-left:10px}
+@media (prefers-reduced-motion:reduce){.btn::before,.btn::after{display:none}}
+.btn-primary{background:var(--primary);color:#FDFCF8;box-shadow:0 6px 22px -8px rgba(45,42,38,.5)}
+.btn-hero{display:block;width:100%;text-align:center;padding:17px 34px;font-size:1.05rem;letter-spacing:.02em}
+.btn-primary:hover{background:var(--primary-dark);box-shadow:0 8px 28px -8px rgba(45,42,38,.6)}
+.btn-outline{background:transparent;color:var(--primary-dark);border:1.6px solid var(--primary);box-shadow:none}
+.btn-outline:hover{background:var(--primary);color:#FDFCF8}
+
+/* ---------- services stripe ---------- */
+.svc-wave{position:absolute;left:0;right:0;top:-18px;width:100%;height:18px;display:block;pointer-events:none}
+.section-kicker{
+  display:flex;align-items:center;gap:10px;
+  font-size:.82rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-dark);
+  margin-bottom:10px;
+}
+.section-kicker::after{content:"";height:1px;width:46px;background:var(--accent);opacity:.6}
+.services{background:#35443C;padding:12px 0 30px;margin-top:-1px;position:relative}
+.svc-head{position:relative;display:flex;align-items:baseline;gap:22px;margin-bottom:16px}
+.services h2{color:#F5F1E8;font-size:clamp(1.6rem,2.6vw,2.1rem);margin:0}
+.svc-wingline{flex:1;height:16px;opacity:.55}
+.svc-split{position:relative;display:flex;gap:14px;height:196px}
+.svc-panel{
+  position:relative;flex:1;overflow:hidden;text-decoration:none;
+  clip-path:polygon(28px 0,100% 0,calc(100% - 28px) 100%,0 100%);
+  transition:flex .45s cubic-bezier(.25,1,.5,1);
+}
+.svc-panel:hover{flex:1.16}
+@media (prefers-reduced-motion:reduce){.svc-panel,.svc-panel::before{transition:none}}
+@media (hover:none){.svc-panel:hover{flex:1}.svc-panel:hover::before{clip-path:inset(0 100% 0 0)}}
+.svc-panel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 38%;transform:scale(1.12)}
+.svc-panel::before{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  -webkit-backdrop-filter:grayscale(1) brightness(1.07);backdrop-filter:grayscale(1) brightness(1.07);
+  clip-path:inset(0 100% 0 0);transition:clip-path .55s cubic-bezier(.25,1,.5,1);
+}
+.svc-panel:hover::before{clip-path:inset(0 0 0 0)}
+.svc-panel:first-child img{object-position:center 14%;transform:scale(1.12) scaleX(-1)}
+.svc-panel::after{content:"";position:absolute;inset:0;background:radial-gradient(130% 140% at 6% 102%,rgba(37,48,42,.92) 0%,rgba(37,48,42,.5) 40%,rgba(37,48,42,0) 70%)}
+.svc-panel-name{
+  position:absolute;left:42px;bottom:20px;z-index:2;display:block;
+  background:#EAD9BC;color:#2D2A26;padding:9px 18px;border-radius:3px;
+  max-width:calc(100% - 84px);box-shadow:0 10px 24px -12px rgba(20,16,12,.5);
+  font-family:var(--font-head);font-weight:600;
+  font-size:1.28rem;line-height:1.2;white-space:nowrap;
+  transition:background .25s;
+}
+.svc-panel-name .nw{white-space:nowrap}
+.svc-panel-name svg{display:inline-block;vertical-align:middle;margin-left:8px;width:18px;height:10px;flex:none;transition:transform .3s ease}
+.svc-panel:hover .svc-panel-name{background:#F5EDDD}
+.svc-panel:hover .svc-panel-name svg{transform:translateX(5px)}
+
+/* ---------- reveal ---------- */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .9s cubic-bezier(.19,1,.22,1),transform .9s cubic-bezier(.19,1,.22,1)}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.hero-card{animation:none}}
+
+/* ---------- above-fold responsive ---------- */
+@media (max-width:1120px){ .nav-cta{display:none} }
+@media (max-width:1180px){
+  .brand-mark{height:46px}
+  .brand-name{font-size:1.4rem}
+  .brand-tag{font-size:.6rem}
+  .nav-links>li>a{padding:10px 8px;font-size:.88rem}
+  .nav-inner{gap:14px}
+}
+@media (max-width:1240px){ .svc-panel-name{font-size:1.1rem;left:32px} }
+@media (max-width:1024px){
+  .svc-panel-name{font-size:.98rem}
+  .brand-tag{display:none}
+  /* Drawer range: no inline nav and no phone icon, so the lockup can breathe. */
+  .brand-mark{height:58px}
+  .nav-links{
+    position:fixed;top:76px;left:0;right:0;bottom:0;background:var(--bg);
+    flex-direction:column;align-items:stretch;gap:0;padding:18px 24px;overflow-y:auto;
+    transform:translateX(100%);transition:transform .32s ease;z-index:99;display:flex;white-space:normal;
+  }
+  .nav-links.open{transform:none}
+  .nav-links>li>a{padding:14px 8px;font-size:1.05rem;border-bottom:1px solid rgba(139,111,71,.12)}
+  .nav-links .dropdown-menu{position:static;opacity:1;visibility:visible;transform:none;box-shadow:none;border:none;background:transparent;min-width:0;display:none;padding:0 0 6px 14px}
+  .nav-links .dropdown.open .dropdown-menu{display:block}
+  .nav-links .dropdown-menu a{font-size:.98rem;padding:11px 8px}
+  .hamburger{display:block}
+  .nav-inner nav{margin:0}
+  /* Phone lives in the drawer on mobile, not the header bar. Needs the parent
+     selector: the touch block's a[href^="sms:"] is (0,1,1) and would otherwise
+     out-specify a bare .nav-phone (0,1,0) and re-show the icon. */
+  .nav-inner .nav-phone{display:none}
+}
+/* Drawer-only CTA: hidden wherever the full nav is inline. */
+@media (min-width:1025px){ .nav-drawer-cta{display:none} }
+@media (max-width:768px){
+  body{font-size:16px}
+  .hero{min-height:0}
+  .hero-inner{padding:56px 28px 72px}
+  .svc-split{flex-direction:column;height:auto;gap:10px}
+  .svc-panel{height:112px;flex:none !important;clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),0 100%)}
+  .svc-panel:last-child{clip-path:polygon(0 12px,100% 0,100% 100%,0 100%)}
+  .svc-panel-name{left:22px;bottom:14px;font-size:max(1.1rem,15px);padding:8px 14px}
+}
+@media (max-width:600px){
+  /* Circular icon button so it never collides with the wordmark on phones */
+  .nav-phone{width:44px;height:44px;padding:0;gap:0;justify-content:center;border-radius:50%}
+  .nav-phone svg{width:18px;height:18px}
+  .nav-phone-num{display:none}
+  .nav-inner{gap:10px}
+}
+@media (max-width:480px){
+  .hero-card{padding:24px 20px}
+  .hero-kicker{margin:0 -20px 16px;padding:10px 20px;font-size:1.15rem}
+  /* Phone icon is gone from the bar, so the lockup takes the freed width and
+     fills the 76px bar (58px mark + 9px breathing room top/bottom). */
+  .brand-name{font-size:1.42rem}
+  .brand-mark{height:58px}
+  .hero{min-height:540px}
+  .hero h1{font-size:1.9rem}
+  .btn{padding:14px 24px;font-size:.95rem}
+}

@@ -1,0 +1,314 @@
+/* ══════════════════════════════════════════════
+   TPA Base — Responsive Breakpoints
+   Primary: 768px  |  Secondary: 480px
+   Per TPA Design Reference: reduce section
+   padding ~20% on mobile.
+   ══════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+
+    /* ── Layout ── */
+    :root {
+        --section-padding-y: 50px;
+        --nav-height: 58px;
+    }
+
+    .container {
+        padding: 0 1.5rem;
+    }
+
+    /* ── Nav ── */
+    .nav-links,
+    .nav-phone {
+        display: none;
+    }
+
+    .nav-toggle {
+        display: flex;
+    }
+
+    /* ── Hero ── */
+    .hero {
+        min-height: 55vh;
+        padding: 50px 0;
+    }
+
+    .hero-line1,
+    .hero-line2 {
+        font-size: clamp(2.2rem, 8vw, 3.5rem);
+    }
+
+    .hero-split {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .hero-split-image {
+        order: -1;
+    }
+
+    /* ── Story sections ── */
+    .story-image-panel {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .story-image-panel--right {
+        direction: ltr;
+    }
+
+    .story-block {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* ── Bio ── */
+    .bio-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .bio-grid--photo-right {
+        direction: ltr;
+    }
+
+    .bio-photo {
+        order: -1;
+    }
+
+    .bio-text h2 {
+        font-size: 2.2rem;
+    }
+
+    /* ── Services ── */
+    .services--cards .services-list,
+    .services--image-cards .services-list {
+        grid-template-columns: 1fr;
+    }
+
+    .svc-row {
+        flex-wrap: wrap;
+    }
+
+    .svc-name {
+        font-size: 1.2rem;
+    }
+
+    .svc-numbered {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* ── CTA Bridge ── */
+    .cta-bridge {
+        min-height: 40vh;
+        padding: 50px 2rem;
+    }
+
+    .cta-bridge-heading {
+        font-size: clamp(1.8rem, 6vw, 2.8rem);
+    }
+
+    /* ── Final CTA ── */
+    .final-cta-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+
+    .final-cta-contact-row {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    /* ── Testimonials ── */
+    .testimonials-list {
+        grid-template-columns: 1fr;
+    }
+
+    /* ── Inner pages ── */
+    .inner-page-hero {
+        padding: 40px 0;
+        min-height: auto;
+    }
+
+    .about-bio-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .about-team-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .blog-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .single-post-nav {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .single-post-nav-link {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+
+    :root {
+        --section-padding-y: 40px;
+    }
+
+    .container {
+        padding: 0 1rem;
+    }
+
+    h1 { font-size: clamp(2rem, 7vw, 2.8rem); }
+    h2 { font-size: clamp(1.5rem, 5vw, 2.2rem); }
+
+    .hero {
+        min-height: 50vh;
+        padding: 40px 0;
+    }
+
+    .hero-line1,
+    .hero-line2 {
+        font-size: clamp(1.8rem, 9vw, 2.8rem);
+    }
+
+    .hero-cta,
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .bio-text h2 {
+        font-size: 1.8rem;
+    }
+
+    .cta-bridge {
+        min-height: 35vh;
+    }
+
+    .svc-name {
+        font-size: 1.1rem;
+    }
+
+    .svc-num {
+        font-size: 2rem;
+    }
+}
+
+/* ══════════════════════════════════════════════
+   TOUCH-DEVICE BASELINE — DO NOT REMOVE
+
+   ⚠️  INERT ON CHILD THEMES. Every tpa-{slug}/functions.php calls
+   wp_dequeue_style('tpa-responsive-css'), so none of this loads on a
+   client site. Patching a client's touch-a11y defect HERE fixes nothing.
+   The live copy is the touch block in tpa-{slug}/assets/css/client.css
+   (canonical template: tpa-scaffold Step 4) and its twin in lp.css.
+   This block stays for correctness + any consumer that doesn't dequeue.
+   Per CLAUDE.md design rules:
+     - 44x44 minimum tap target (Apple HIG / Google MD)
+     - 14px minimum font-size on touch devices
+   Fires on phones, tablets, hybrids — anywhere the user
+   navigates by tap, not mouse hover. NOT a viewport-width
+   query (iPad Pro 11 landscape is 1194px wide AND a touch
+   device — would fail max-width rules).
+   ══════════════════════════════════════════════ */
+@media (hover: none) and (pointer: coarse) {
+
+    /* Tap targets ≥44x44 across header, mobile drawer, and footer links.
+       inline-flex preserves inline behavior + supports min-height +
+       align-items: center vertically centers the text. */
+    .nav a,
+    .nav-brand,
+    .nav-links a,
+    .nav-phone,
+    .nav-phone a,
+    .nav-toggle,
+    .hamburger,
+    button.menu-toggle,
+    .mobile-nav a,
+    .mobile-nav-phone,
+    .mobile-menu-links a,
+    .mobile-menu-phone,
+    .footer-nav a,
+    .footer-links a,
+    .footer-social a,
+    .footer-legal a,
+    a[href^="tel:"] {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    /* Square buttons (hamburger / menu toggle) need min-width too. */
+    .hamburger,
+    button.menu-toggle,
+    .nav-toggle {
+        min-width: 44px;
+        justify-content: center;
+    }
+
+    /* Nav links font-size floor — desktop nav defaults to .82rem (13.1px)
+       which fails the touch readability gate on iPad Pro 11 landscape. */
+    .nav-links a {
+        font-size: 14px;
+    }
+
+    /* Dropdown group heading — mockups style these ~10px uppercase. */
+    .drop-group,
+    li.drop-group > a {
+        font-size: 14px;
+        letter-spacing: .12em;
+    }
+
+    /* Header phone link — typically 13px / 24px tall, under both floors. */
+    .nav-phone,
+    .nav-phone .ph-num,
+    .m-phone,
+    .mob-phone {
+        font-size: 14px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        box-sizing: border-box;
+    }
+
+    /* Bare <button> inherits the UA default 13.33px. Element selector with
+       no !important — any real button class outranks it. */
+    button,
+    input[type="submit"],
+    input[type="button"] {
+        font-size: 14px;
+    }
+
+    /* WPForms field labels: 14px floor. WPForms modern theme defaults to
+       0.85em ~ 13.6px and ships 604 cascade rules — !important is required
+       to win, plus double selectors for specificity. */
+    .wpforms-container .wpforms-field-label,
+    .wpforms-container .wpforms-container label,
+    .wpforms-form label,
+    .wpforms-form .wpforms-form label,
+    .wpforms-field-label-inline {
+        font-size: 14px !important;
+    }
+
+    /* Footer copyright + legal: 14px floor on touch. Desktop fine print
+       can stay smaller per CLAUDE.md design rules. */
+    .footer-copyright,
+    .footer-copyright p,
+    .footer-legal,
+    .footer-legal p,
+    .footer-legal a {
+        font-size: 14px;
+    }
+}

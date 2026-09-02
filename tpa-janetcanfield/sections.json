@@ -1,0 +1,15 @@
+{
+  "sections": [
+    { "part": "hero", "variant": "waterfall-card" },
+    { "part": "services", "variant": "wing-split" },
+    { "part": "vignette", "variant": "hiding" },
+    { "part": "vignette", "variant": "fog" },
+    { "part": "vignette", "variant": "storm" },
+    { "part": "vignette", "variant": "distress" },
+    { "part": "bridge", "variant": "stop-flying-alone" },
+    { "part": "text-band", "variant": "text-me" },
+    { "part": "bio", "variant": "hi-im-janet" },
+    { "part": "final-cta", "variant": "two-column" }
+  ],
+  "fonts_url": "https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Figtree:wght@400;500;600&display=swap"
+}

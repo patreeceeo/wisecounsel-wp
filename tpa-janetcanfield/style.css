@@ -1,0 +1,18 @@
+/*
+Theme Name: TPA - Wise Counsel (Janet Canfield)
+Template: tpa-base
+Description: Custom child theme for Wise Counsel, the counseling practice of Janet Canfield in Asheville, NC.
+Version: 1.0.0
+*/
+
+:root {
+  --service-body-max: 1080px;
+}
+
+/* Landing page color overrides (scoped to body.landing-page so they win over
+   parent landing.css defaults which load after this file). */
+body.landing-page {
+  --lp-primary: #6E5636;
+  --lp-secondary: #8B6F47;
+  --lp-accent: #6B8B7A;
+}

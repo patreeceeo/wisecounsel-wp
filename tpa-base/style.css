@@ -1,0 +1,60 @@
+/*
+Theme Name: TPA Base
+Theme URI: https://ghtdev.com
+Description: Parent theme for Therapy Practice Accelerator client websites. Pure templates + ACF + vanilla JS. No page builder.
+Version: 1.2.2
+Author: Greater Heights Technology
+Author URI: https://ghtdev.com
+Requires at least: 6.0
+Requires PHP: 8.0
+License: Proprietary
+Text Domain: tpa-base
+*/
+
+:root {
+    /* Colors — child themes override these */
+    --primary: #2C5F7C;
+    --primary-dark: #1E4258;
+    --primary-light: #3A7FA6;
+    --secondary: #8B6F4E;
+    --accent: #C4573A;
+    --bg: #FAF8F5;
+    --text: #2C2F33;
+    --white: #FFFFFF;
+    --footer-bg: #1a1a1a;
+    --footer-text: #d0d0d0;
+
+    /* Typography — child themes override these */
+    --heading-font: 'Playfair Display', Georgia, serif;
+    --body-font: 'Source Sans Pro', 'Segoe UI', sans-serif;
+
+    /* Spacing — per TPA Design Reference: reduce instinct by 30% */
+    --section-padding-y: 65px;
+    --container-max: 1140px;
+    --service-body-max: 1080px;  /* Inner-page body content (.service-body) — see tpa-dev-site §2.13 */
+    --content-gap: 50px;
+    --nav-height: 64px;
+}
+
+/* Inner-page body content wrapper (Service, Specialty, About, etc.).
+   Lives in style.css (not base.css) because child themes typically dequeue
+   tpa-base-css but NOT tpa-base-style — so this rule reliably inherits.
+   Child themes override --service-body-max only for brand reasons.
+   See tpa-dev-site SKILL.md §2.13. */
+.service-body {
+    max-width: var(--service-body-max);
+    margin: 0 auto;
+}
+
+/* Inner-page section H2 baseline. ALL framework section classes share one size
+   so a page mixing .svc-intro, .svc-text-block, .svc-img-section (.svc-text-col),
+   and .svc-closing renders with one consistent heading rhythm. Child themes
+   override per brand if needed. See tpa-dev-site SKILL.md §2.13. */
+.svc-intro h2,
+.svc-text-block h2,
+.svc-closing h2,
+.svc-text-col h2 {
+    font-size: clamp(1.6rem, 2.8vw, 2rem);
+    line-height: 1.2;
+    margin: 0 0 22px;
+}

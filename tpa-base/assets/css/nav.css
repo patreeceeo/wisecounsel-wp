@@ -1,0 +1,248 @@
+/* ══════════════════════════════════════════════
+   TPA Base — Navigation
+   Fixed nav, dropdowns, mobile hamburger.
+   Matched to actual mockup CSS from John Tobin,
+   Amanda Harmon, Crystal Gayle, Holly Erskine.
+   ══════════════════════════════════════════════ */
+
+/* ── Main Nav Bar ── */
+.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background: var(--text);
+    padding: 0 2rem;
+    height: var(--nav-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--body-font);
+}
+
+/* Push page content below fixed nav */
+body {
+    padding-top: var(--nav-height);
+}
+
+.nav-brand {
+    font-family: var(--heading-font);
+    font-size: 1.35rem;
+    letter-spacing: .06em;
+    color: var(--bg);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* ── Desktop Nav Links ── */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links a {
+    color: rgba(244, 241, 234, .8);
+    font-size: .82rem;
+    font-weight: 500;
+    letter-spacing: .03em;
+    transition: color .2s;
+}
+
+.nav-links a:hover {
+    color: var(--bg);
+}
+
+/* ── Dropdowns ── */
+.nav-links .dropdown {
+    position: relative;
+}
+
+.nav-links .dropdown > a.dropdown-toggle::after {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg);
+    margin-left: 5px;
+    vertical-align: middle;
+    position: relative;
+    top: -2px;
+}
+
+/* Scoped to .nav-links so it doesn't leak into .mobile-menu-links /
+   .mobile-nav drawers — those use the same .dropdown-menu class when the
+   TPA_Nav_Walker is in play, and inherit position/opacity rules that
+   silently hide them on tap. */
+.nav-links .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--text);
+    min-width: 260px;
+    padding: .5rem 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition: all .25s ease;
+    border-top: 2px solid var(--accent);
+    z-index: 100;
+    list-style: none;
+    margin: 0;
+}
+
+.nav-links .dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.nav-links .dropdown-menu a {
+    display: block;
+    padding: .55rem 1.2rem;
+    font-size: .8rem;
+    white-space: nowrap;
+}
+
+.nav-links .dropdown-menu a:hover {
+    background: rgba(255, 255, 255, .06);
+}
+
+/* ── Phone & CTA ── */
+.nav-phone {
+    color: var(--bg);
+    font-size: .82rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-left: .5rem;
+    white-space: nowrap;
+    transition: color .2s;
+}
+
+.nav-phone:hover {
+    color: var(--accent);
+}
+
+/* ── Hamburger Toggle ── */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.nav-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--bg);
+    transition: all .3s ease;
+}
+
+/* Hamburger → X animation */
+.nav-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.nav-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* ── Mobile Menu ── */
+.mobile-menu {
+    display: none;
+    position: fixed;
+    top: var(--nav-height);
+    left: 0;
+    width: 100%;
+    background: rgba(44, 47, 51, .97);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 1.5rem 2rem 2rem;
+    flex-direction: column;
+    gap: .8rem;
+    z-index: 999;
+    max-height: calc(100vh - var(--nav-height));
+    overflow-y: auto;
+}
+
+.mobile-menu.open {
+    display: flex;
+}
+
+.mobile-menu-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.mobile-menu-links a {
+    color: rgba(255, 255, 255, .9);
+    font-size: 1.05rem;
+    font-weight: 600;
+    display: block;
+    padding: .5rem 0;
+    font-family: var(--body-font);
+    transition: color .2s;
+}
+
+.mobile-menu-links a:hover {
+    color: var(--accent);
+}
+
+/* Mobile submenus — DUAL-SELECTOR (sub-menu OR dropdown-menu) is REQUIRED.
+   The mobile <ul> is emitted by whatever walker the child theme passes to
+   wp_nav_menu(): default WP walker → .sub-menu; TPA_Nav_Walker → .dropdown-menu.
+   Walker choice flips site-by-site. CSS that targets only one breaks the other. */
+.mobile-menu-links .sub-menu,
+.mobile-menu-links .dropdown-menu {
+    display: none;
+    list-style: none;
+    padding: 0 0 0 1.2rem;
+    margin: 0;
+}
+
+.mobile-menu-links .sub-menu.open,
+.mobile-menu-links .dropdown-menu.open {
+    display: block;
+}
+
+.mobile-menu-links .sub-menu a,
+.mobile-menu-links .dropdown-menu a {
+    font-size: .92rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, .65);
+}
+
+.mobile-menu-links .menu-item-has-children > a.expanded {
+    color: var(--accent);
+}
+
+.mobile-menu-phone {
+    display: block;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, .1);
+    color: var(--accent);
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+}
