@@ -63,6 +63,17 @@ $form_sub    = tpa_field('lp_form_subheadline', $page_id);
 $form_card   = tpa_field('lp_form_card_title', $page_id, 'Request Your Free Consultation');
 $form_sc     = tpa_field('lp_form_shortcode', $page_id) ?: tpa_field('form_wpforms_shortcode', 'option');
 
+// Fonts: self-hosted variable woff2 (see header.php for the why). Falls back to
+// Google Fonts only if the files are missing from assets/fonts/.
+$fonts_dir  = get_stylesheet_directory() . '/assets/fonts';
+$fonts_uri  = get_stylesheet_directory_uri() . '/assets/fonts';
+$self_fonts = file_exists($fonts_dir . '/figtree-wght-normal.woff2');
+$font_faces = [
+    ['Figtree',  'normal', 'figtree-wght-normal',  true],
+    ['Alegreya', 'normal', 'alegreya-wght-normal', true],
+    ['Alegreya', 'italic', 'alegreya-wght-italic', false],
+    ['Figtree',  'italic', 'figtree-wght-italic',  false],
+];
 $fonts_url = 'https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Figtree:wght@400;500;600&display=swap';
 $twig = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 110 12%22 fill=%22none%22 stroke=%22%23A68B5B%22 stroke-width=%221.4%22 stroke-linecap=%22round%22%3E%3Cpath d=%22M1 8c34-2 66-3 108-5M36 7l11-5M72 5l-9-5%22/%3E%3C/svg%3E';
 ?>
@@ -76,10 +87,28 @@ $twig = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBo
   <?php if ($seo_desc): ?><meta name="description" content="<?php echo esc_attr($seo_desc); ?>"><?php endif; ?>
   <link rel="icon" type="image/png" sizes="64x64" href="<?php echo esc_url($child_img . 'favicon-64.png'); ?>">
   <link rel="apple-touch-icon" href="<?php echo esc_url($child_img . 'favicon-180.png'); ?>">
+  <?php if ($self_fonts):
+      $latin = 'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,'
+             . 'U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,'
+             . 'U+2212,U+2215,U+FEFF,U+FFFD';
+      foreach ($font_faces as [$fam, $style, $file, $preload]):
+          if (!$preload) continue; ?>
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+        href="<?php echo esc_url($fonts_uri . '/' . $file . '.woff2'); ?>">
+  <?php endforeach; ?>
+  <style id="tpa-fonts" data-no-optimize="1"><?php
+      foreach ($font_faces as [$fam, $style, $file, $preload]) {
+          echo "@font-face{font-family:'{$fam}';font-style:{$style};"
+             . "font-weight:400 700;font-display:swap;"
+             . "src:url('" . esc_url($fonts_uri . '/' . $file . '.woff2') . "') format('woff2');"
+             . "unicode-range:{$latin}}";
+      }
+  ?></style>
+  <?php else: ?>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="<?php echo esc_url($fonts_url); ?>" rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript><link href="<?php echo esc_url($fonts_url); ?>" rel="stylesheet"></noscript>
+  <link href="<?php echo esc_url($fonts_url); ?>" rel="stylesheet">
+  <?php endif; ?>
   <?php wp_head(); ?>
   <style>
   :root{
