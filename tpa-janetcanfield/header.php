@@ -9,43 +9,11 @@ $practice    = tpa_field('site_identity_practice_name', 'option', 'Wise Counsel'
 $phone       = tpa_field('site_identity_phone', 'option', '(828) 222-0809');
 $phone_clean = preg_replace('/[^0-9]/', '', $phone);
 $is_front    = is_front_page();
-/* ── Fonts ────────────────────────────────────────────────────────────────
- * Self-hosted variable woff2, latin subset (SIL OFL — assets/fonts/LICENSE.txt).
- *
- * Google Fonts put four levels on the critical path:
- *   HTML → litespeed css_async.min.js → fonts.googleapis.com → fonts.gstatic.com
- * and LiteSpeed's CSS-async rewrite parked the <link> inside a <noscript> whose
- * loader never fired, so the live site rendered in system serif/sans with zero
- * @font-face rules. Same-origin woff2 collapses the chain to HTML → woff2 and
- * drops two cross-origin handshakes. Same pattern tpa-base/page-landing.php
- * already calls canonical.
- *
- * Variable files carry the whole 400–700 range the CSS uses (500/600/700 +
- * italics) in one request per family/style instead of one per weight.
- * Non-preloaded faces are fetched lazily by the browser, only if the page
- * actually paints a glyph in them — declaring them costs nothing.
- */
-$fonts_dir  = get_stylesheet_directory() . '/assets/fonts';
-$fonts_uri  = get_stylesheet_directory_uri() . '/assets/fonts';
-$self_fonts = file_exists($fonts_dir . '/figtree-wght-normal.woff2');
-
-// [ family, style, basename, preload? ] — preload only the two faces that paint
-// above the fold (body copy + headings). Italics and Caveat load on demand.
-$font_faces = [
-    ['Figtree',  'normal', 'figtree-wght-normal',  true],
-    ['Alegreya', 'normal', 'alegreya-wght-normal', true],
-    ['Alegreya', 'italic', 'alegreya-wght-italic', false],
-    ['Figtree',  'italic', 'figtree-wght-italic',  false],
-];
+$fonts_url   = 'https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Figtree:wght@400;500;600&display=swap';
 // FAQ "Field Notes" uses Caveat for handwritten category labels.
 if (is_page_template('page-faq.php')) {
-    $font_faces[] = ['Caveat', 'normal', 'caveat-wght-normal', false];
+    $fonts_url = 'https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Figtree:wght@400;500;600&family=Caveat:wght@500;600;700&display=swap';
 }
-
-// Fallback for a deploy where the woff2 files never landed.
-$fonts_url = 'https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Figtree:wght@400;500;600'
-    . (is_page_template('page-faq.php') ? '&family=Caveat:wght@500;600;700' : '')
-    . '&display=swap';
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -65,30 +33,10 @@ $fonts_url = 'https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;
               type="image/webp" fetchpriority="high">
     <?php endif; ?>
 
-    <?php if ($self_fonts):
-        // Latin subset range, matching what Google Fonts serves for these families.
-        $latin = 'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,'
-               . 'U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,'
-               . 'U+2212,U+2215,U+FEFF,U+FFFD';
-        foreach ($font_faces as [$fam, $style, $file, $preload]):
-            if (!$preload) continue; ?>
-    <link rel="preload" as="font" type="font/woff2" crossorigin
-          href="<?php echo esc_url($fonts_uri . '/' . $file . '.woff2'); ?>">
-    <?php endforeach; ?>
-    <style id="tpa-fonts" data-no-optimize="1"><?php
-        foreach ($font_faces as [$fam, $style, $file, $preload]) {
-            $src = $fonts_uri . '/' . $file . '.woff2';
-            echo "@font-face{font-family:'{$fam}';font-style:{$style};"
-               . "font-weight:400 700;font-display:swap;"
-               . "src:url('" . esc_url($src) . "') format('woff2');"
-               . "unicode-range:{$latin}}";
-        }
-    ?></style>
-    <?php else: ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="<?php echo esc_url($fonts_url); ?>" rel="stylesheet">
-    <?php endif; ?>
+    <link href="<?php echo esc_url($fonts_url); ?>" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="<?php echo esc_url($fonts_url); ?>" rel="stylesheet"></noscript>
 
     <?php wp_head(); ?>
 </head>
@@ -101,11 +49,8 @@ $fonts_url = 'https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;
     <a class="brand" href="<?php echo esc_url(home_url('/')); ?>" aria-label="<?php echo esc_attr($practice); ?> home">
       <?php // Marks render at most 58px tall, so the assets are 143x160 (2.7x) and
             // go through <picture> for the alpha-preserving WebP. ?>
-      <?php // Neither mark is the LCP element — the hero is. Two fetchpriority=high
-            // resources dilute the signal, and the cream mark is display:none until
-            // .nav.scrolled, so it has no claim on the first viewport at all. ?>
-      <?php tpa_picture('logo-mark-ink.png', '', ['class'=>'brand-mark mark-ink','width'=>'143','height'=>'160','decoding'=>'async']); ?>
-      <?php tpa_picture('logo-mark-cream.png', '', ['class'=>'brand-mark mark-cream','width'=>'143','height'=>'160','fetchpriority'=>'low','decoding'=>'async']); ?>
+      <?php tpa_picture('logo-mark-ink.png', '', ['class'=>'brand-mark mark-ink','width'=>'143','height'=>'160','fetchpriority'=>'high','decoding'=>'async']); ?>
+      <?php tpa_picture('logo-mark-cream.png', '', ['class'=>'brand-mark mark-cream','width'=>'143','height'=>'160','decoding'=>'async']); ?>
       <span class="brand-text">
         <span class="brand-name">wise <span>counsel</span></span>
         <span class="brand-tag">Janet Canfield &middot; Asheville, NC</span>

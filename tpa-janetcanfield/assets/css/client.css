@@ -9,7 +9,7 @@
 .vig-storm .vig-fig{clip-path:polygon(0 0,calc(100% - 48px) 0,100% 100%,48px 100%)}
 .vig-fig img{width:100%;height:440px;object-fit:cover;display:block;transform:scale(1.26)}
 .vig-hiding .vig-fig img{object-position:center 30%}
-.twig{display:block;width:100px;height:12px;margin:0 0 20px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 110 12%22 fill=%22none%22 stroke=%22%23A68B5B%22 stroke-width=%221.4%22 stroke-linecap=%22round%22%3E%3Cpath d=%22M1 8c34-2 66-3 108-5M36 7l11-5M72 5l-9-5%22/%3E%3C/svg%3E") no-repeat center/contain}
+.twig{display:block;width:100px;height:12px;margin:0 0 20px;background:url("../images/twig.svg") no-repeat center/contain}
 .vig-copy h2{font-size:clamp(1.9rem,3.3vw,2.6rem);margin-bottom:12px}
 .vig-copy p{color:var(--text-soft);margin-bottom:12px;max-width:52ch}
 .refrain{
@@ -62,8 +62,8 @@
 
 /* ---------- bridge spread ---------- */
 .bridge{position:relative;display:grid;grid-template-columns:56% 44%;min-height:520px;background:#2C3833;margin-top:-32px;
-  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 64%22 preserveAspectRatio=%22none%22%3E%3Cpath d=%22M0 64V38C240 8 480 0 720 14s480 42 720 24v26Z%22 fill=%22%23000%22/%3E%3C/svg%3E") top/100% 33px no-repeat,linear-gradient(#000,#000) 0 32px/100% calc(100% - 32px) no-repeat;
-  mask:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 64%22 preserveAspectRatio=%22none%22%3E%3Cpath d=%22M0 64V38C240 8 480 0 720 14s480 42 720 24v26Z%22 fill=%22%23000%22/%3E%3C/svg%3E") top/100% 33px no-repeat,linear-gradient(#000,#000) 0 32px/100% calc(100% - 32px) no-repeat;}
+  -webkit-mask:url("../images/wave-mask.svg") top/100% 33px no-repeat,linear-gradient(#000,#000) 0 32px/100% calc(100% - 32px) no-repeat;
+  mask:url("../images/wave-mask.svg") top/100% 33px no-repeat,linear-gradient(#000,#000) 0 32px/100% calc(100% - 32px) no-repeat;}
 .bridge-wave{position:absolute;left:0;right:0;top:0;width:100%;height:32px;display:block;pointer-events:none;z-index:2}
 .bridge-fig{position:relative;overflow:hidden}
 .bridge-fig img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 34%;transform:translateX(20px) scale(1.24) scaleX(-1)}
@@ -95,8 +95,8 @@
   position:relative;overflow:hidden;padding:46px 0 38px;margin-top:-18px;
   background:linear-gradient(115deg,#41594A 0%,#547260 46%,#6B8B7A 100%);
   border-bottom:2px solid rgba(166,139,91,.85);
-  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 64%22 preserveAspectRatio=%22none%22%3E%3Cpath d=%22M0 64V38C240 8 480 0 720 14s480 42 720 24v26Z%22 fill=%22%23000%22/%3E%3C/svg%3E") top/100% 19px no-repeat,linear-gradient(#000,#000) 0 18px/100% calc(100% - 18px) no-repeat;
-  mask:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 64%22 preserveAspectRatio=%22none%22%3E%3Cpath d=%22M0 64V38C240 8 480 0 720 14s480 42 720 24v26Z%22 fill=%22%23000%22/%3E%3C/svg%3E") top/100% 19px no-repeat,linear-gradient(#000,#000) 0 18px/100% calc(100% - 18px) no-repeat;
+  -webkit-mask:url("../images/wave-mask.svg") top/100% 19px no-repeat,linear-gradient(#000,#000) 0 18px/100% calc(100% - 18px) no-repeat;
+  mask:url("../images/wave-mask.svg") top/100% 19px no-repeat,linear-gradient(#000,#000) 0 18px/100% calc(100% - 18px) no-repeat;
 }
 .band-wave{position:absolute;left:0;right:0;top:0;width:100%;height:18px;display:block;pointer-events:none;z-index:3}
 .text-band::before{content:"";position:absolute;inset:0;background:radial-gradient(80% 170% at 85% 50%,rgba(234,217,188,.13),transparent 62%);pointer-events:none}
@@ -190,7 +190,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent-dark);outlin
   padding:22px 48px 24px;border-radius:22px 22px 22px 6px;
   box-shadow:0 26px 54px -26px rgba(20,16,12,.6),0 0 0 1px rgba(234,217,188,.15);
 }
-.inner-hero-twig{display:block;width:88px;height:11px;margin:0 auto 12px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 110 12%22 fill=%22none%22 stroke=%22%23EAD9BC%22 stroke-width=%221.4%22 stroke-linecap=%22round%22%3E%3Cpath d=%22M1 8c34-2 66-3 108-5M36 7l11-5M72 5l-9-5%22/%3E%3C/svg%3E") no-repeat center/contain}
+.inner-hero-twig{display:block;width:88px;height:11px;margin:0 auto 12px;background:url("../images/twig-gold.svg") no-repeat center/contain}
 /* per-page hero framing so the subject reads clearly */
 body.page-relationships .inner-hero-bg{object-position:center 48%}     /* balance the couple + Eiffel Tower with the arch overhead */
 body.page-lgbtqia-therapy .inner-hero-bg{object-position:center 18%}   /* show the full rainbow flag up top */
@@ -229,7 +229,7 @@ body.page-individual-therapy .inner-hero-bg{object-position:center 10%} /* show 
 /* botanical punctuation above each full-width (text-only) section to break the
    vertical text monotony and reinforce the brand — image sections have their
    own visual anchor so they're excluded */
-.service-body>h2::before{content:"";display:block;width:88px;height:11px;margin:0 0 16px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 110 12%22 fill=%22none%22 stroke=%22%23A68B5B%22 stroke-width=%221.4%22 stroke-linecap=%22round%22%3E%3Cpath d=%22M1 8c34-2 66-3 108-5M36 7l11-5M72 5l-9-5%22/%3E%3C/svg%3E") no-repeat left center/contain;opacity:.9}
+.service-body>h2::before{content:"";display:block;width:88px;height:11px;margin:0 0 16px;background:url("../images/twig.svg") no-repeat left center/contain;opacity:.9}
 .service-body>.svc-close-cta .twig{margin:0 auto 14px}
 .service-body h3{font-family:var(--font-head);font-weight:600;color:var(--text);font-size:1.32rem;margin:22px 0 10px}
 .service-body p{color:var(--text-soft);margin-bottom:14px}
@@ -260,7 +260,7 @@ body.page-individual-therapy .inner-hero-bg{object-position:center 10%} /* show 
   background:radial-gradient(78% 120% at 84% 8%,rgba(234,217,188,.14),transparent 60%),
              radial-gradient(60% 100% at 8% 108%,rgba(107,139,122,.22),transparent 62%)}
 .svc-close-cta>*{position:relative;z-index:1}
-.svc-close-cta .twig{width:104px;height:12px;margin:0 auto 16px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 110 12%22 fill=%22none%22 stroke=%22%23EAD9BC%22 stroke-width=%221.4%22 stroke-linecap=%22round%22%3E%3Cpath d=%22M1 8c34-2 66-3 108-5M36 7l11-5M72 5l-9-5%22/%3E%3C/svg%3E") no-repeat center/contain}
+.svc-close-cta .twig{width:104px;height:12px;margin:0 auto 16px;background:url("../images/twig-gold.svg") no-repeat center/contain}
 .svc-close-cta h2{color:#FDFCF8 !important;margin:0 0 12px !important;font-size:clamp(1.7rem,3vw,2.35rem) !important}
 .svc-close-cta p{color:rgba(253,252,248,.9) !important;max-width:56ch;margin:0 auto 10px !important}
 .svc-close-cta strong{color:var(--gold)}
@@ -289,7 +289,7 @@ body.page-individual-therapy .inner-hero-bg{object-position:center 10%} /* show 
 
 /* About journey – dashed spine, alternating cards, gold numbered nodes (no images) */
 .journey-intro{text-align:center;margin-bottom:clamp(28px,4vw,44px)}
-.journey-intro .twig{width:104px;height:12px;margin:0 auto 12px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 110 12%22 fill=%22none%22 stroke=%22%23A68B5B%22 stroke-width=%221.4%22 stroke-linecap=%22round%22%3E%3Cpath d=%22M1 8c34-2 66-3 108-5M36 7l11-5M72 5l-9-5%22/%3E%3C/svg%3E") no-repeat center/contain}
+.journey-intro .twig{width:104px;height:12px;margin:0 auto 12px;background:url("../images/twig.svg") no-repeat center/contain}
 .journey-intro h2{font-family:var(--font-head);color:var(--primary-dark);font-size:clamp(1.6rem,2.8vw,2.15rem)}
 .journey{--jgap:clamp(24px,3.2vw,40px);position:relative;max-width:940px;margin:0 auto;padding:8px 0}
 /* dashed line is drawn per-step as node-to-node connectors, so it terminates
@@ -328,7 +328,7 @@ body.page-individual-therapy .inner-hero-bg{object-position:center 10%} /* show 
 .about-janet-portrait{justify-self:center}
 .about-janet-portrait img{width:min(300px,72vw);aspect-ratio:1/1.12;object-fit:cover;object-position:center 20%;
   border-radius:20px 20px 20px 6px;border:3px solid var(--gold);box-shadow:0 30px 60px -26px rgba(0,0,0,.6);display:block}
-.about-janet-copy .twig{width:104px;height:12px;margin-bottom:16px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 110 12%22 fill=%22none%22 stroke=%22%23EAD9BC%22 stroke-width=%221.4%22 stroke-linecap=%22round%22%3E%3Cpath d=%22M1 8c34-2 66-3 108-5M36 7l11-5M72 5l-9-5%22/%3E%3C/svg%3E") no-repeat left center/contain}
+.about-janet-copy .twig{width:104px;height:12px;margin-bottom:16px;background:url("../images/twig-gold.svg") no-repeat left center/contain}
 .about-janet-copy h2{color:#FDFCF8;font-size:clamp(1.9rem,3.4vw,2.6rem);margin-bottom:8px}
 .about-janet-copy .aj-lead{font-family:var(--font-head);font-style:italic;font-size:1.32rem;color:var(--gold);margin-bottom:16px}
 .about-janet-copy p{color:rgba(253,252,248,.9);margin-bottom:12px}
@@ -372,7 +372,7 @@ body.page-individual-therapy .inner-hero-bg{object-position:center 10%} /* show 
 }
 .contact-intro-card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
   background:radial-gradient(70% 120% at 88% 6%,rgba(234,217,188,.4),transparent 55%)}
-.contact-intro-card .twig{width:104px;height:12px;margin:0 auto 18px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 110 12%22 fill=%22none%22 stroke=%22%23A68B5B%22 stroke-width=%221.4%22 stroke-linecap=%22round%22%3E%3Cpath d=%22M1 8c34-2 66-3 108-5M36 7l11-5M72 5l-9-5%22/%3E%3C/svg%3E") no-repeat center/contain;position:relative}
+.contact-intro-card .twig{width:104px;height:12px;margin:0 auto 18px;background:url("../images/twig.svg") no-repeat center/contain;position:relative}
 .contact-intro-card p{position:relative;font-family:var(--font-head);font-size:clamp(1.15rem,1.9vw,1.42rem);line-height:1.5;color:var(--text);margin-bottom:12px}
 .contact-intro-card p:last-child{margin-bottom:0}
 .contact-intro-card em{font-style:italic;color:var(--primary-dark)}
@@ -446,8 +446,8 @@ body.page-individual-therapy .inner-hero-bg{object-position:center 10%} /* show 
   .vig-fig img{height:300px}
   .refrain{font-size:max(1.25rem,16px);padding:12px 26px}
   .bridge{grid-template-columns:1fr;min-height:0;margin-top:-16px;
-    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 64%22 preserveAspectRatio=%22none%22%3E%3Cpath d=%22M0 64V38C240 8 480 0 720 14s480 42 720 24v26Z%22 fill=%22%23000%22/%3E%3C/svg%3E") top/100% 17px no-repeat,linear-gradient(#000,#000) 0 16px/100% calc(100% - 16px) no-repeat;
-    mask:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 64%22 preserveAspectRatio=%22none%22%3E%3Cpath d=%22M0 64V38C240 8 480 0 720 14s480 42 720 24v26Z%22 fill=%22%23000%22/%3E%3C/svg%3E") top/100% 17px no-repeat,linear-gradient(#000,#000) 0 16px/100% calc(100% - 16px) no-repeat}
+    -webkit-mask:url("../images/wave-mask.svg") top/100% 17px no-repeat,linear-gradient(#000,#000) 0 16px/100% calc(100% - 16px) no-repeat;
+    mask:url("../images/wave-mask.svg") top/100% 17px no-repeat,linear-gradient(#000,#000) 0 16px/100% calc(100% - 16px) no-repeat}
   .bridge-wave{height:16px}
   .bridge-fig{height:300px;position:relative}
   /* The 20px nudge is art direction for the desktop side-by-side crop; once
