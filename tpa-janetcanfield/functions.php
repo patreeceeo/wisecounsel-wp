@@ -71,6 +71,13 @@ add_action('wp_head', function() {
 
 // Remove WordPress emoji scripts/styles
 remove_action('wp_head', 'print_emoji_detection_script', 7);
+
+// Force the theme's own favicons (assets/images/favicon-64.png / favicon-180.png,
+// linked in header.php and page-landing-nest.php) to win over whatever Site Icon
+// is set in Settings > General — otherwise WordPress's own <link rel="icon">
+// tags print later in <head> and browsers prefer those instead.
+remove_action('wp_head', 'wp_site_icon', 99);
+add_filter('get_site_icon_url', '__return_false');
 remove_action('wp_print_styles', 'print_emoji_styles');
 remove_action('admin_print_scripts', 'print_emoji_detection_script');
 remove_action('admin_print_styles', 'print_emoji_styles');
