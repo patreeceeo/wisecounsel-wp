@@ -324,6 +324,8 @@ function tpa_janetcanfield_contact_form( $args = [] ) {
     $post_id        = $args['post_id'] ?: get_the_ID();
     $form_shortcode = tpa_field( $args['shortcode_field'], $post_id ) ?: tpa_field( 'form_wpforms_shortcode', 'option' );
 
+    tpa_janetcanfield_mark_contact_form_rendered();
+
     if ( $form_shortcode ) {
         echo do_shortcode( $form_shortcode );
         return;
@@ -335,7 +337,7 @@ function tpa_janetcanfield_contact_form( $args = [] ) {
 
     $p = esc_attr( $args['id_prefix'] );
     ?>
-    <form action="#" method="post">
+    <form action="#" method="post" onsubmit="return gtag_report_conversion();">
       <div class="form-row"><label for="<?php echo $p; ?>-name">Name</label><input id="<?php echo $p; ?>-name" type="text" name="name" required></div>
       <div class="form-row"><label for="<?php echo $p; ?>-email">Email</label><input id="<?php echo $p; ?>-email" type="email" name="email" required></div>
       <div class="form-row"><label for="<?php echo $p; ?>-phone">Phone</label><input id="<?php echo $p; ?>-phone" type="tel" name="phone"></div>
@@ -344,6 +346,55 @@ function tpa_janetcanfield_contact_form( $args = [] ) {
     </form>
     <?php
 }
+
+/**
+ * Flags that a contact form was rendered on this request, so the Google Ads
+ * conversion script below only prints on pages that actually have one.
+ */
+function tpa_janetcanfield_mark_contact_form_rendered() {
+    global $tpa_janetcanfield_contact_form_rendered;
+    $tpa_janetcanfield_contact_form_rendered = true;
+}
+
+/**
+ * Google Ads conversion tracking for contact form submissions.
+ *
+ * gtag_report_conversion() is the standard snippet from Google Ads (conversion
+ * action AW-18420858126/hLtbCM-L9PgcEI76389E). Assumes the base gtag.js tag is
+ * already loaded elsewhere on the site (e.g. Site Kit / GTM) — this only adds
+ * the conversion event and wires it to form submission:
+ *
+ *  - WPForms embeds submit over AJAX and fire a native 'wpformsAjaxSubmitSuccess'
+ *    document event on success; we hook that to report the conversion.
+ *  - The plain fallback form (rendered only when no WPForms shortcode is
+ *    configured) has no real backend, so it calls gtag_report_conversion()
+ *    directly from its own onsubmit.
+ */
+add_action( 'wp_footer', function () {
+    global $tpa_janetcanfield_contact_form_rendered;
+    if ( empty( $tpa_janetcanfield_contact_form_rendered ) ) {
+        return;
+    }
+    ?>
+    <script>
+    function gtag_report_conversion(url) {
+      var callback = function () {
+        if (typeof(url) != 'undefined') {
+          window.location = url;
+        }
+      };
+      gtag('event', 'conversion', {
+          'send_to': 'AW-18420858126/hLtbCM-L9PgcEI76389E',
+          'event_callback': callback
+      });
+      return false;
+    }
+    document.addEventListener('wpformsAjaxSubmitSuccess', function () {
+      gtag_report_conversion();
+    });
+    </script>
+    <?php
+} );
 
 // ── ACF field groups ───────────────────────────────────────────────────────
 add_action('acf/init', function() {
