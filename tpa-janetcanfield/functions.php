@@ -381,7 +381,7 @@ define( 'TPA_JANETCANFIELD_CONVERSION_COOKIE', 'tpa_wc_conversion' );
 add_action( 'wp_head', function () {
     ?>
     <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo esc_attr( TPA_JANETCANFIELD_GOOGLE_TAG_ID ); ?>"></script>
-    <script>
+    <script>/* tpa-gtag */
       window.dataLayer = window.dataLayer || [];
       function gtag(){ dataLayer.push(arguments); }
       gtag('js', new Date());
@@ -439,7 +439,7 @@ add_action( 'wpforms_process_complete', function () {
  */
 add_action( 'wp_footer', function () {
     ?>
-    <script>
+    <script>/* tpa-gtag */
     function gtag_report_conversion(url) {
       var callback = function () {
         if (typeof(url) != 'undefined') {
@@ -473,6 +473,40 @@ add_action( 'wp_footer', function () {
     </script>
     <?php
 } );
+
+/**
+ * Keep the Google tag out of LiteSpeed's JS loader.
+ *
+ * LiteSpeed rewrites scripts to type="litespeed/javascript" and runs them from
+ * its own loader instead of letting the browser execute them. With JS delay
+ * switched on that can be as late as the visitor's first interaction, so
+ * someone who lands on a confirmation page and leaves without touching
+ * anything would never report the conversion — the tag would simply never run.
+ *
+ * LiteSpeed matches exclusions as plain substrings, against the src for
+ * external scripts and the body for inline ones. Both inline blocks above
+ * carry a 'tpa-gtag' marker so a single keyword covers them, and the loader is
+ * matched by its URL. Site Kit's own tag is excluded too: it is subject to the
+ * same delay, and it is the tag currently carrying AW-7087027042.
+ *
+ * Set through the filters rather than the equivalent boxes under Page
+ * Optimization -> Tuning so the exclusion is version-controlled and survives a
+ * settings re-save or a rebuild. 'litespeed_optm_js_defer_exc' backs the "JS
+ * Deferred / Delayed Excludes" box, which is the one that matters here;
+ * 'litespeed_optimize_js_excludes' keeps the same scripts out of minify and
+ * combine.
+ */
+function tpa_janetcanfield_litespeed_js_exclusions( $excludes ) {
+    $excludes = is_array( $excludes ) ? $excludes : [];
+
+    $excludes[] = 'tpa-gtag';
+    $excludes[] = 'googletagmanager.com/gtag/js';
+    $excludes[] = 'googlesitekit';
+
+    return $excludes;
+}
+add_filter( 'litespeed_optimize_js_excludes', 'tpa_janetcanfield_litespeed_js_exclusions' );
+add_filter( 'litespeed_optm_js_defer_exc', 'tpa_janetcanfield_litespeed_js_exclusions' );
 
 // ── ACF field groups ───────────────────────────────────────────────────────
 add_action('acf/init', function() {
