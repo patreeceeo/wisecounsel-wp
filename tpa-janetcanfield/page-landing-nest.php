@@ -61,7 +61,6 @@ $next_steps  = tpa_field('lp_whatnext_steps', $page_id, []);
 $form_h      = tpa_field('lp_form_headline', $page_id, 'Reach Out for Your Free Consultation');
 $form_sub    = tpa_field('lp_form_subheadline', $page_id);
 $form_card   = tpa_field('lp_form_card_title', $page_id, 'Request Your Free Consultation');
-$form_sc     = tpa_field('lp_form_shortcode', $page_id) ?: tpa_field('form_wpforms_shortcode', 'option');
 
 $fonts_url = 'https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Figtree:wght@400;500;600&display=swap';
 $twig = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 110 12%22 fill=%22none%22 stroke=%22%23A68B5B%22 stroke-width=%221.4%22 stroke-linecap=%22round%22%3E%3Cpath d=%22M1 8c34-2 66-3 108-5M36 7l11-5M72 5l-9-5%22/%3E%3C/svg%3E';
@@ -600,7 +599,7 @@ $twig = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBo
       </a>
       <div class="ln-form-card">
         <h3><?php echo esc_html($form_card ?: 'Prefer to write? Send a message'); ?></h3>
-        <?php if ($form_sc) echo do_shortcode($form_sc); ?>
+        <?php tpa_janetcanfield_contact_form( [ 'shortcode_field' => 'lp_form_shortcode', 'fallback' => false ] ); ?>
         <p class="ln-form-secure"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Everything you share is confidential.</p>
       </div>
     </div>

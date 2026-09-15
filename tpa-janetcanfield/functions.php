@@ -290,6 +290,61 @@ function tpa_janetcanfield_render_body( $post_id ) {
     return $content;
 }
 
+/**
+ * Wise Counsel — shared contact form renderer.
+ *
+ * Every contact form on this site is a WPForms embed: a per-page shortcode
+ * override (field name given by 'shortcode_field') falling back to the
+ * site-wide form saved on the TPA Settings options page. If no shortcode is
+ * configured anywhere, this renders a plain fallback form instead of nothing
+ * — 4 fields (name, email, phone, message), matching the home page's final
+ * CTA card, which is the gold standard for what a contact form on this site
+ * should contain. Do not add fields here without also adding them to the
+ * home page form.
+ *
+ * @param array $args {
+ *     @type int    $post_id         Post to check for a per-page shortcode override. Default get_the_ID().
+ *     @type string $shortcode_field ACF field name for the per-page override. Default 'form_wpforms_shortcode'.
+ *     @type string $id_prefix       Prefix for the fallback form's field ids, so more than one instance can
+ *                                   appear on a single page without id collisions. Default 'f'.
+ *     @type string $submit_text     Fallback form's submit button label. Default 'Request a Consultation'.
+ *     @type bool   $fallback        Whether to render the plain fallback form when no shortcode is configured
+ *                                   anywhere. Default true.
+ * }
+ */
+function tpa_janetcanfield_contact_form( $args = [] ) {
+    $args = wp_parse_args( $args, [
+        'post_id'         => null,
+        'shortcode_field' => 'form_wpforms_shortcode',
+        'id_prefix'       => 'f',
+        'submit_text'     => 'Request a Consultation',
+        'fallback'        => true,
+    ] );
+
+    $post_id        = $args['post_id'] ?: get_the_ID();
+    $form_shortcode = tpa_field( $args['shortcode_field'], $post_id ) ?: tpa_field( 'form_wpforms_shortcode', 'option' );
+
+    if ( $form_shortcode ) {
+        echo do_shortcode( $form_shortcode );
+        return;
+    }
+
+    if ( ! $args['fallback'] ) {
+        return;
+    }
+
+    $p = esc_attr( $args['id_prefix'] );
+    ?>
+    <form action="#" method="post">
+      <div class="form-row"><label for="<?php echo $p; ?>-name">Name</label><input id="<?php echo $p; ?>-name" type="text" name="name" required></div>
+      <div class="form-row"><label for="<?php echo $p; ?>-email">Email</label><input id="<?php echo $p; ?>-email" type="email" name="email" required></div>
+      <div class="form-row"><label for="<?php echo $p; ?>-phone">Phone</label><input id="<?php echo $p; ?>-phone" type="tel" name="phone"></div>
+      <div class="form-row"><label for="<?php echo $p; ?>-msg">What brings you here?</label><textarea id="<?php echo $p; ?>-msg" name="message"></textarea></div>
+      <button class="btn btn-primary" type="submit"><?php echo esc_html( $args['submit_text'] ); ?></button>
+    </form>
+    <?php
+}
+
 // ── ACF field groups ───────────────────────────────────────────────────────
 add_action('acf/init', function() {
     if (!function_exists('acf_add_local_field_group')) return;

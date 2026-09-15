@@ -13,7 +13,6 @@ $form_kick = tpa_field('final_cta_form_kicker', $front, 'Free 10-Minute Consulta
 $form_ttl  = tpa_field('final_cta_form_title', $front, 'Reach Out Today');
 $form_note = tpa_field('final_cta_form_note', $front, 'I respond to all inquiries within 48 hours.');
 
-$form_shortcode = tpa_field('form_wpforms_shortcode', get_the_ID()) ?: tpa_field('form_wpforms_shortcode', 'option');
 $phone     = tpa_field('site_identity_phone', 'option', '(828) 222-0809');
 $phone_sms = preg_replace('/[^0-9]/', '', $phone);
 $email     = tpa_field('site_identity_email', 'option', 'janet.e.canfield@gmail.com');
@@ -42,22 +41,7 @@ $email     = tpa_field('site_identity_email', 'option', 'janet.e.canfield@gmail.
     <div class="form-card">
       <?php if ($form_kick): ?><div class="form-kicker"><?php echo esc_html($form_kick); ?></div><?php endif; ?>
       <?php if ($form_ttl): ?><h3><?php echo esc_html($form_ttl); ?></h3><?php endif; ?>
-      <?php
-      if ($form_shortcode) {
-          echo do_shortcode($form_shortcode);
-      } else {
-          // 4-field fallback (matches mockup)
-          ?>
-          <form action="#" method="post">
-            <div class="form-row"><label for="f-name">Name</label><input id="f-name" type="text" name="name" required></div>
-            <div class="form-row"><label for="f-email">Email</label><input id="f-email" type="email" name="email" required></div>
-            <div class="form-row"><label for="f-phone">Phone</label><input id="f-phone" type="tel" name="phone"></div>
-            <div class="form-row"><label for="f-msg">What brings you here?</label><textarea id="f-msg" name="message"></textarea></div>
-            <button class="btn btn-primary" type="submit">Request a Consultation</button>
-          </form>
-          <?php
-      }
-      ?>
+      <?php tpa_janetcanfield_contact_form( [ 'id_prefix' => 'f', 'submit_text' => 'Request a Consultation' ] ); ?>
       <?php if ($form_note): ?><p class="form-note"><?php echo esc_html($form_note); ?></p><?php endif; ?>
     </div>
   </div>
