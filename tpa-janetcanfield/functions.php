@@ -357,12 +357,36 @@ function tpa_janetcanfield_mark_contact_form_rendered() {
 }
 
 /**
+ * Google Ads base tag (AW-18420858126).
+ *
+ * Site Kit is installed but no Analytics/Ads property is connected yet, so
+ * nothing was actually emitting gtag.js — confirmed on the live site
+ * (wisecounselwnc.org): no gtag/dataLayer/GTM script anywhere in the page.
+ * Loaded theme-side instead of waiting on that: site-wide (not gated to
+ * pages with a form) since Ads wants the base tag everywhere for
+ * remarketing, not just on conversion pages.
+ *
+ * If Site Kit's Ads/Analytics connection is finished later, check for a
+ * duplicate gtag.js load before keeping both.
+ */
+add_action( 'wp_head', function () {
+    ?>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18420858126"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'AW-18420858126');
+    </script>
+    <?php
+}, 1 );
+
+/**
  * Google Ads conversion tracking for contact form submissions.
  *
  * gtag_report_conversion() is the standard snippet from Google Ads (conversion
- * action AW-18420858126/hLtbCM-L9PgcEI76389E). Assumes the base gtag.js tag is
- * already loaded elsewhere on the site (e.g. Site Kit / GTM) — this only adds
- * the conversion event and wires it to form submission:
+ * action AW-18420858126/hLtbCM-L9PgcEI76389E), reporting to the base tag added
+ * above. Wired to form submission:
  *
  *  - WPForms embeds submit over AJAX and fire a native 'wpformsAjaxSubmitSuccess'
  *    document event on success; we hook that to report the conversion.
