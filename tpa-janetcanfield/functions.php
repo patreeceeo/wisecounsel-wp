@@ -357,7 +357,14 @@ function tpa_janetcanfield_mark_contact_form_rendered() {
 }
 
 /**
- * Google Ads base tag (AW-18420858126).
+ * Primary Google tag ID (the Google Ads account-level gtag.js tag). Shared by
+ * the base tag load and the conversion send_to below so the account ID isn't
+ * repeated across both.
+ */
+define( 'TPA_JANETCANFIELD_GOOGLE_TAG_ID', 'AW-18420858126' );
+
+/**
+ * Google Ads base tag.
  *
  * Site Kit is installed but no Analytics/Ads property is connected yet, so
  * nothing was actually emitting gtag.js — confirmed on the live site
@@ -371,12 +378,12 @@ function tpa_janetcanfield_mark_contact_form_rendered() {
  */
 add_action( 'wp_head', function () {
     ?>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18420858126"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo esc_attr( TPA_JANETCANFIELD_GOOGLE_TAG_ID ); ?>"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){ dataLayer.push(arguments); }
       gtag('js', new Date());
-      gtag('config', 'AW-18420858126');
+      gtag('config', '<?php echo esc_js( TPA_JANETCANFIELD_GOOGLE_TAG_ID ); ?>');
     </script>
     <?php
 }, 1 );
@@ -385,8 +392,8 @@ add_action( 'wp_head', function () {
  * Google Ads conversion tracking for contact form submissions.
  *
  * gtag_report_conversion() is the standard snippet from Google Ads (conversion
- * action AW-18420858126/hLtbCM-L9PgcEI76389E), reporting to the base tag added
- * above. Wired to form submission:
+ * action TPA_JANETCANFIELD_GOOGLE_TAG_ID . '/hLtbCM-L9PgcEI76389E'), reporting
+ * to the base tag added above. Wired to form submission:
  *
  *  - WPForms embeds submit over AJAX and fire a native 'wpformsAjaxSubmitSuccess'
  *    document event on success; we hook that to report the conversion.
@@ -408,7 +415,7 @@ add_action( 'wp_footer', function () {
         }
       };
       gtag('event', 'conversion', {
-          'send_to': 'AW-18420858126/hLtbCM-L9PgcEI76389E',
+          'send_to': '<?php echo esc_js( TPA_JANETCANFIELD_GOOGLE_TAG_ID ); ?>/hLtbCM-L9PgcEI76389E',
           'event_callback': callback
       });
       return false;
