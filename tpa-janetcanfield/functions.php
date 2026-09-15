@@ -324,8 +324,6 @@ function tpa_janetcanfield_contact_form( $args = [] ) {
     $post_id        = $args['post_id'] ?: get_the_ID();
     $form_shortcode = tpa_field( $args['shortcode_field'], $post_id ) ?: tpa_field( 'form_wpforms_shortcode', 'option' );
 
-    tpa_janetcanfield_mark_contact_form_rendered();
-
     if ( $form_shortcode ) {
         echo do_shortcode( $form_shortcode );
         return;
@@ -348,20 +346,17 @@ function tpa_janetcanfield_contact_form( $args = [] ) {
 }
 
 /**
- * Flags that a contact form was rendered on this request, so the Google Ads
- * conversion script below only prints on pages that actually have one.
- */
-function tpa_janetcanfield_mark_contact_form_rendered() {
-    global $tpa_janetcanfield_contact_form_rendered;
-    $tpa_janetcanfield_contact_form_rendered = true;
-}
-
-/**
  * Primary Google tag ID (the Google Ads account-level gtag.js tag). Shared by
  * the base tag load and the conversion send_to below so the account ID isn't
  * repeated across both.
  */
 define( 'TPA_JANETCANFIELD_GOOGLE_TAG_ID', 'AW-18420858126' );
+
+/**
+ * Name of the one-shot cookie that hands a completed submission from PHP to
+ * the browser, so the conversion can be reported by gtag.
+ */
+define( 'TPA_JANETCANFIELD_CONVERSION_COOKIE', 'tpa_wc_conversion' );
 
 /**
  * Google Ads base tag.
@@ -389,23 +384,53 @@ add_action( 'wp_head', function () {
 }, 1 );
 
 /**
- * Google Ads conversion tracking for contact form submissions.
+ * Flags a completed submission for the browser to report as a conversion.
+ *
+ * wpforms_process_complete is the single point every successful submission
+ * passes through, whatever the individual form is set to: classic POST or AJAX,
+ * inline-message or redirect confirmation. Hooking it here rather than trying
+ * to detect success in the browser keeps this agnostic to how each form is
+ * configured, and means only real submissions count — validation failures and
+ * spam rejections never reach this hook.
+ *
+ * The handoff is a short-lived cookie rather than a tag printed inline because
+ * a redirect confirmation moves the conversion to the *next* request, and
+ * because this site sits behind LiteSpeed page cache: a server-printed tag
+ * could be cached and replayed to every later visitor. The cookie varies per
+ * visitor while the JS that reads it stays identical for everyone, so the
+ * cached HTML stays correct.
+ */
+add_action( 'wpforms_process_complete', function () {
+    if ( headers_sent() ) {
+        return;
+    }
+    setcookie( TPA_JANETCANFIELD_CONVERSION_COOKIE, '1', [
+        'expires'  => time() + ( 15 * MINUTE_IN_SECONDS ),
+        'path'     => '/',
+        'secure'   => is_ssl(),
+        'httponly' => false, // the browser has to read this one.
+        'samesite' => 'Lax',
+    ] );
+} );
+
+/**
+ * Google Ads conversion reporting.
  *
  * gtag_report_conversion() is the standard snippet from Google Ads (conversion
  * action TPA_JANETCANFIELD_GOOGLE_TAG_ID . '/hLtbCM-L9PgcEI76389E'), reporting
- * to the base tag added above. Wired to form submission:
+ * to the base tag added above. It is called from two places:
  *
- *  - WPForms embeds submit over AJAX and fire a native 'wpformsAjaxSubmitSuccess'
- *    document event on success; we hook that to report the conversion.
- *  - The plain fallback form (rendered only when no WPForms shortcode is
- *    configured) has no real backend, so it calls gtag_report_conversion()
- *    directly from its own onsubmit.
+ *  - Whenever the cookie set by wpforms_process_complete above is present. A
+ *    classic POST submission finds it on the reloaded page, and a redirect
+ *    confirmation finds it on the thank-you page. The cookie is cleared as it
+ *    is spent, so a reload or a back-button visit cannot double-count.
+ *  - From the fallback form's own onsubmit — that form has no backend, so no
+ *    submission ever reaches PHP to set the cookie.
+ *
+ * Printed on every page, not just ones with a form, because with a redirect
+ * confirmation the page that owes the conversion is the one *without* a form.
  */
 add_action( 'wp_footer', function () {
-    global $tpa_janetcanfield_contact_form_rendered;
-    if ( empty( $tpa_janetcanfield_contact_form_rendered ) ) {
-        return;
-    }
     ?>
     <script>
     function gtag_report_conversion(url) {
@@ -420,9 +445,24 @@ add_action( 'wp_footer', function () {
       });
       return false;
     }
-    document.addEventListener('wpformsAjaxSubmitSuccess', function () {
-      gtag_report_conversion();
-    });
+    (function () {
+      var name = '<?php echo esc_js( TPA_JANETCANFIELD_CONVERSION_COOKIE ); ?>';
+      function reportIfPending() {
+        if (document.cookie.split('; ').indexOf(name + '=1') === -1) {
+          return;
+        }
+        document.cookie = name + '=; Max-Age=0; path=/';
+        gtag_report_conversion();
+      }
+      reportIfPending();
+      // An AJAX submission never navigates, so nothing would re-read the cookie
+      // until the visitor happens to load another page. WPForms announces that
+      // case through jQuery — note it fires a jQuery event, which plain
+      // addEventListener cannot observe.
+      if (window.jQuery) {
+        window.jQuery(document).on('wpformsAjaxSubmitSuccess', reportIfPending);
+      }
+    })();
     </script>
     <?php
 } );
