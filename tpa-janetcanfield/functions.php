@@ -361,15 +361,22 @@ define( 'TPA_JANETCANFIELD_CONVERSION_COOKIE', 'tpa_wc_conversion' );
 /**
  * Google Ads base tag.
  *
- * Site Kit is installed but no Analytics/Ads property is connected yet, so
- * nothing was actually emitting gtag.js — confirmed on the live site
- * (wisecounselwnc.org): no gtag/dataLayer/GTM script anywhere in the page.
- * Loaded theme-side instead of waiting on that: site-wide (not gated to
- * pages with a form) since Ads wants the base tag everywhere for
- * remarketing, not just on conversion pages.
+ * Loaded here because nothing else on the site configures the Ads account the
+ * conversion below is reported against. Site Kit's Google tag (GT-5N57QH3S)
+ * did go live during Sept 2026, but it configures a *different* Ads account —
+ * AW-7087027042 — which would not carry a conversion belonging to
+ * TPA_JANETCANFIELD_GOOGLE_TAG_ID. Verified in the page source of
+ * wisecounselwnc.org. Printed on every page rather than only ones with a form,
+ * since Ads expects the base tag site-wide for remarketing, not only where a
+ * conversion happens.
  *
- * If Site Kit's Ads/Analytics connection is finished later, check for a
- * duplicate gtag.js load before keeping both.
+ * Two things to settle before leaving this alone:
+ *  - Which Ads account is the right one. If the conversion action actually
+ *    lives in AW-7087027042, then both the constant above and the send_to
+ *    below name the wrong account and no conversion will ever land.
+ *  - If Site Kit's Google tag is later pointed at the same account this uses,
+ *    the two become duplicate gtag.js loads reporting the same action. Delete
+ *    one side at that point rather than keeping both.
  */
 add_action( 'wp_head', function () {
     ?>
