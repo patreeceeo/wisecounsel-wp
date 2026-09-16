@@ -62,6 +62,8 @@ $form_h      = tpa_field('lp_form_headline', $page_id, 'Reach Out for Your Free 
 $form_sub    = tpa_field('lp_form_subheadline', $page_id);
 $form_card   = tpa_field('lp_form_card_title', $page_id, 'Request Your Free Consultation');
 
+// Only reached if assets/fonts/ is missing from the deploy -- see
+// tpa_janetcanfield_font_faces() in functions.php.
 $fonts_url = 'https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Figtree:wght@400;500;600&display=swap';
 $twig = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 110 12%22 fill=%22none%22 stroke=%22%23A68B5B%22 stroke-width=%221.4%22 stroke-linecap=%22round%22%3E%3Cpath d=%22M1 8c34-2 66-3 108-5M36 7l11-5M72 5l-9-5%22/%3E%3C/svg%3E';
 ?>
@@ -75,10 +77,12 @@ $twig = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBo
   <?php if ($seo_desc): ?><meta name="description" content="<?php echo esc_attr($seo_desc); ?>"><?php endif; ?>
   <link rel="icon" type="image/png" sizes="64x64" href="<?php echo esc_url($child_img . 'favicon-64.png'); ?>">
   <link rel="apple-touch-icon" href="<?php echo esc_url($child_img . 'favicon-180.png'); ?>">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="<?php echo esc_url($fonts_url); ?>" rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript><link href="<?php echo esc_url($fonts_url); ?>" rel="stylesheet"></noscript>
+  <?php if (!tpa_janetcanfield_font_faces()): ?>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="<?php echo esc_url($fonts_url); ?>" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="<?php echo esc_url($fonts_url); ?>" rel="stylesheet"></noscript>
+  <?php endif; ?>
   <?php wp_head(); ?>
   <style>
   :root{
