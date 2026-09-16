@@ -290,6 +290,224 @@ function tpa_janetcanfield_render_body( $post_id ) {
     return $content;
 }
 
+/**
+ * Wise Counsel — shared contact form renderer.
+ *
+ * Every contact form on this site is a WPForms embed: a per-page shortcode
+ * override (field name given by 'shortcode_field') falling back to the
+ * site-wide form saved on the TPA Settings options page. If no shortcode is
+ * configured anywhere, this renders a plain fallback form instead of nothing
+ * — 4 fields (name, email, phone, message), matching the home page's final
+ * CTA card, which is the gold standard for what a contact form on this site
+ * should contain. Do not add fields here without also adding them to the
+ * home page form.
+ *
+ * @param array $args {
+ *     @type int    $post_id         Post to check for a per-page shortcode override. Default get_the_ID().
+ *     @type string $shortcode_field ACF field name for the per-page override. Default 'form_wpforms_shortcode'.
+ *     @type string $id_prefix       Prefix for the fallback form's field ids, so more than one instance can
+ *                                   appear on a single page without id collisions. Default 'f'.
+ *     @type string $submit_text     Fallback form's submit button label. Default 'Request a Consultation'.
+ *     @type bool   $fallback        Whether to render the plain fallback form when no shortcode is configured
+ *                                   anywhere. Default true.
+ * }
+ */
+function tpa_janetcanfield_contact_form( $args = [] ) {
+    $args = wp_parse_args( $args, [
+        'post_id'         => null,
+        'shortcode_field' => 'form_wpforms_shortcode',
+        'id_prefix'       => 'f',
+        'submit_text'     => 'Request a Consultation',
+        'fallback'        => true,
+    ] );
+
+    $post_id        = $args['post_id'] ?: get_the_ID();
+    $form_shortcode = tpa_field( $args['shortcode_field'], $post_id ) ?: tpa_field( 'form_wpforms_shortcode', 'option' );
+
+    if ( $form_shortcode ) {
+        echo do_shortcode( $form_shortcode );
+        return;
+    }
+
+    if ( ! $args['fallback'] ) {
+        return;
+    }
+
+    $p = esc_attr( $args['id_prefix'] );
+    ?>
+    <form action="#" method="post" onsubmit="return gtag_report_conversion();">
+      <div class="form-row"><label for="<?php echo $p; ?>-name">Name</label><input id="<?php echo $p; ?>-name" type="text" name="name" required></div>
+      <div class="form-row"><label for="<?php echo $p; ?>-email">Email</label><input id="<?php echo $p; ?>-email" type="email" name="email" required></div>
+      <div class="form-row"><label for="<?php echo $p; ?>-phone">Phone</label><input id="<?php echo $p; ?>-phone" type="tel" name="phone"></div>
+      <div class="form-row"><label for="<?php echo $p; ?>-msg">What brings you here?</label><textarea id="<?php echo $p; ?>-msg" name="message"></textarea></div>
+      <button class="btn btn-primary" type="submit"><?php echo esc_html( $args['submit_text'] ); ?></button>
+    </form>
+    <?php
+}
+
+/**
+ * Primary Google tag ID (the Google Ads account-level gtag.js tag). Shared by
+ * the base tag load and the conversion send_to below so the account ID isn't
+ * repeated across both.
+ */
+define( 'TPA_JANETCANFIELD_GOOGLE_TAG_ID', 'AW-18420858126' );
+
+/**
+ * Name of the one-shot cookie that hands a completed submission from PHP to
+ * the browser, so the conversion can be reported by gtag.
+ */
+define( 'TPA_JANETCANFIELD_CONVERSION_COOKIE', 'tpa_wc_conversion' );
+
+/**
+ * Google Ads base tag.
+ *
+ * Loaded here because nothing else on the site configures the Ads account the
+ * conversion below is reported against. Site Kit's Google tag (GT-5N57QH3S)
+ * did go live during Sept 2026, but it configures a *different* Ads account —
+ * AW-7087027042 — which would not carry a conversion belonging to
+ * TPA_JANETCANFIELD_GOOGLE_TAG_ID. Verified in the page source of
+ * wisecounselwnc.org. Printed on every page rather than only ones with a form,
+ * since Ads expects the base tag site-wide for remarketing, not only where a
+ * conversion happens.
+ *
+ * Two things to settle before leaving this alone:
+ *  - Which Ads account is the right one. If the conversion action actually
+ *    lives in AW-7087027042, then both the constant above and the send_to
+ *    below name the wrong account and no conversion will ever land.
+ *  - If Site Kit's Google tag is later pointed at the same account this uses,
+ *    the two become duplicate gtag.js loads reporting the same action. Delete
+ *    one side at that point rather than keeping both.
+ */
+add_action( 'wp_head', function () {
+    ?>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo esc_attr( TPA_JANETCANFIELD_GOOGLE_TAG_ID ); ?>"></script>
+    <script>/* tpa-gtag */
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', '<?php echo esc_js( TPA_JANETCANFIELD_GOOGLE_TAG_ID ); ?>');
+    </script>
+    <?php
+}, 1 );
+
+/**
+ * Flags a completed submission for the browser to report as a conversion.
+ *
+ * wpforms_process_complete is the single point every successful submission
+ * passes through, whatever the individual form is set to: classic POST or AJAX,
+ * inline-message or redirect confirmation. Hooking it here rather than trying
+ * to detect success in the browser keeps this agnostic to how each form is
+ * configured, and means only real submissions count — validation failures and
+ * spam rejections never reach this hook.
+ *
+ * The handoff is a short-lived cookie rather than a tag printed inline because
+ * a redirect confirmation moves the conversion to the *next* request, and
+ * because this site sits behind LiteSpeed page cache: a server-printed tag
+ * could be cached and replayed to every later visitor. The cookie varies per
+ * visitor while the JS that reads it stays identical for everyone, so the
+ * cached HTML stays correct.
+ */
+add_action( 'wpforms_process_complete', function () {
+    if ( headers_sent() ) {
+        return;
+    }
+    setcookie( TPA_JANETCANFIELD_CONVERSION_COOKIE, '1', [
+        'expires'  => time() + ( 15 * MINUTE_IN_SECONDS ),
+        'path'     => '/',
+        'secure'   => is_ssl(),
+        'httponly' => false, // the browser has to read this one.
+        'samesite' => 'Lax',
+    ] );
+} );
+
+/**
+ * Google Ads conversion reporting.
+ *
+ * gtag_report_conversion() is the standard snippet from Google Ads (conversion
+ * action TPA_JANETCANFIELD_GOOGLE_TAG_ID . '/hLtbCM-L9PgcEI76389E'), reporting
+ * to the base tag added above. It is called from two places:
+ *
+ *  - Whenever the cookie set by wpforms_process_complete above is present. A
+ *    classic POST submission finds it on the reloaded page, and a redirect
+ *    confirmation finds it on the thank-you page. The cookie is cleared as it
+ *    is spent, so a reload or a back-button visit cannot double-count.
+ *  - From the fallback form's own onsubmit — that form has no backend, so no
+ *    submission ever reaches PHP to set the cookie.
+ *
+ * Printed on every page, not just ones with a form, because with a redirect
+ * confirmation the page that owes the conversion is the one *without* a form.
+ */
+add_action( 'wp_footer', function () {
+    ?>
+    <script>/* tpa-gtag */
+    function gtag_report_conversion(url) {
+      var callback = function () {
+        if (typeof(url) != 'undefined') {
+          window.location = url;
+        }
+      };
+      gtag('event', 'conversion', {
+          'send_to': '<?php echo esc_js( TPA_JANETCANFIELD_GOOGLE_TAG_ID ); ?>/hLtbCM-L9PgcEI76389E',
+          'event_callback': callback
+      });
+      return false;
+    }
+    (function () {
+      var name = '<?php echo esc_js( TPA_JANETCANFIELD_CONVERSION_COOKIE ); ?>';
+      function reportIfPending() {
+        if (document.cookie.split('; ').indexOf(name + '=1') === -1) {
+          return;
+        }
+        document.cookie = name + '=; Max-Age=0; path=/';
+        gtag_report_conversion();
+      }
+      reportIfPending();
+      // An AJAX submission never navigates, so nothing would re-read the cookie
+      // until the visitor happens to load another page. WPForms announces that
+      // case through jQuery — note it fires a jQuery event, which plain
+      // addEventListener cannot observe.
+      if (window.jQuery) {
+        window.jQuery(document).on('wpformsAjaxSubmitSuccess', reportIfPending);
+      }
+    })();
+    </script>
+    <?php
+} );
+
+/**
+ * Keep the Google tag out of LiteSpeed's JS loader.
+ *
+ * LiteSpeed rewrites scripts to type="litespeed/javascript" and runs them from
+ * its own loader instead of letting the browser execute them. With JS delay
+ * switched on that can be as late as the visitor's first interaction, so
+ * someone who lands on a confirmation page and leaves without touching
+ * anything would never report the conversion — the tag would simply never run.
+ *
+ * LiteSpeed matches exclusions as plain substrings, against the src for
+ * external scripts and the body for inline ones. Both inline blocks above
+ * carry a 'tpa-gtag' marker so a single keyword covers them, and the loader is
+ * matched by its URL. Site Kit's own tag is excluded too: it is subject to the
+ * same delay, and it is the tag currently carrying AW-7087027042.
+ *
+ * Set through the filters rather than the equivalent boxes under Page
+ * Optimization -> Tuning so the exclusion is version-controlled and survives a
+ * settings re-save or a rebuild. 'litespeed_optm_js_defer_exc' backs the "JS
+ * Deferred / Delayed Excludes" box, which is the one that matters here;
+ * 'litespeed_optimize_js_excludes' keeps the same scripts out of minify and
+ * combine.
+ */
+function tpa_janetcanfield_litespeed_js_exclusions( $excludes ) {
+    $excludes = is_array( $excludes ) ? $excludes : [];
+
+    $excludes[] = 'tpa-gtag';
+    $excludes[] = 'googletagmanager.com/gtag/js';
+    $excludes[] = 'googlesitekit';
+
+    return $excludes;
+}
+add_filter( 'litespeed_optimize_js_excludes', 'tpa_janetcanfield_litespeed_js_exclusions' );
+add_filter( 'litespeed_optm_js_defer_exc', 'tpa_janetcanfield_litespeed_js_exclusions' );
+
 // ── ACF field groups ───────────────────────────────────────────────────────
 add_action('acf/init', function() {
     if (!function_exists('acf_add_local_field_group')) return;
