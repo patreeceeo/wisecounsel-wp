@@ -133,6 +133,86 @@ add_action('wp_enqueue_scripts', function() {
 }, 100);
 
 /**
+ * Self-hosted webfonts.
+ *
+ * The Google Fonts <link> never actually loaded. LiteSpeed's CSS-async rewrite
+ * recognised the media="print" onload="this.media='all'" pattern, stripped the
+ * live <link>, parked a copy in <noscript>, and deferred re-injection to
+ * css_async.min.js -- which restored the UCSS bundle but not the fonts. The site
+ * had been rendering in system fallbacks: document.fonts.size === 0, zero font
+ * requests, h1 computing to Alegreya with no Alegreya delivered.
+ *
+ * So the @font-face rules are emitted inline in <head>, marked data-no-optimize
+ * so LiteSpeed leaves them alone, pointing at same-origin latin-subset variable
+ * woff2. That collapses the chain from
+ *   HTML -> css_async.min.js -> fonts.googleapis.com -> fonts.gstatic.com
+ * (4 levels, 3 origins, dead-ending at level 2) down to HTML -> woff2.
+ *
+ * Only the two above-fold upright faces are preloaded. The italics and Caveat are
+ * declared but deliberately unpreloaded: a browser fetches a declared face only
+ * when a glyph actually paints in it.
+ *
+ * Returns false -- without emitting anything -- if assets/fonts/ did not make it
+ * into the deploy, so the caller can fall back to the Google Fonts path rather
+ * than shipping a page with no fonts at all.
+ *
+ * @param bool $with_caveat Also declare Caveat (page-faq.php "Field Notes" labels).
+ * @return bool True if the inline faces were emitted.
+ */
+function tpa_janetcanfield_font_faces( $with_caveat = false ) {
+    $dir = get_stylesheet_directory() . '/assets/fonts/';
+    $uri = get_stylesheet_directory_uri() . '/assets/fonts/';
+
+    // [ family, style, weight range, file, preload? ]
+    $faces = [
+        [ 'Figtree',  'normal', '300 900', 'figtree-300-900-normal.woff2',  true  ],
+        [ 'Alegreya', 'normal', '400 900', 'alegreya-400-900-normal.woff2', true  ],
+        [ 'Figtree',  'italic', '300 900', 'figtree-300-900-italic.woff2',  false ],
+        [ 'Alegreya', 'italic', '400 900', 'alegreya-400-900-italic.woff2', false ],
+    ];
+    if ( $with_caveat ) {
+        $faces[] = [ 'Caveat', 'normal', '400 700', 'caveat-400-700-normal.woff2', false ];
+    }
+
+    foreach ( $faces as $face ) {
+        if ( ! file_exists( $dir . $face[3] ) ) {
+            return false;
+        }
+    }
+
+    // The same latin subset range Google Fonts serves for these families, so glyph
+    // coverage is unchanged from what the site was nominally requesting before.
+    $range = 'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,'
+           . 'U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,'
+           . 'U+2212,U+2215,U+FEFF,U+FFFD';
+
+    foreach ( $faces as $face ) {
+        if ( $face[4] ) {
+            printf(
+                '<link rel="preload" as="font" type="font/woff2" href="%s" crossorigin>' . "\n",
+                esc_url( $uri . $face[3] )
+            );
+        }
+    }
+
+    echo '<style id="tpa-fonts" data-no-optimize="1">';
+    foreach ( $faces as $face ) {
+        printf(
+            "@font-face{font-family:'%s';font-style:%s;font-weight:%s;font-display:swap;"
+                . "src:url(%s) format('woff2');unicode-range:%s}",
+            $face[0],
+            $face[1],
+            $face[2],
+            esc_url( $uri . $face[3] ),
+            $range
+        );
+    }
+    echo "</style>\n";
+
+    return true;
+}
+
+/**
  * Turn bare phone numbers (client prefers TEXT -> sms:) and email addresses in
  * rendered content into obvious links. Existing <a>…</a> are left untouched.
  */
