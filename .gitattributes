@@ -1,0 +1,15 @@
+# Normalise line endings in the index to LF. The repo was committed as LF;
+# a Windows tool rewrote the working tree to CRLF on 2026-09, producing a
+# spurious 11,607-line diff across 67 files. This prevents a recurrence.
+* text=auto eol=lf
+
+*.woff2 binary
+*.woff  binary
+*.ttf   binary
+*.otf   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
