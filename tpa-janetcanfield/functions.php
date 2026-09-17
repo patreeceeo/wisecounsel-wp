@@ -708,3 +708,77 @@ add_action('acf/init', function() {
         'menu_order'=>0,'position'=>'normal','style'=>'default','label_placement'=>'top',
     ]);
 });
+
+/**
+ * AI crawler policy — reviewed 2026-09-17.
+ *
+ * Rule of thumb: block crawlers that harvest for MODEL TRAINING; allow the ones
+ * that fetch at ANSWER TIME, because those are what cite and link back.
+ *
+ * Google-Extended and PerplexityBot are added to robots.txt by a plugin further
+ * up this filter chain. Both blocks were counterproductive:
+ *
+ *  - Google-Extended does NOT affect AI Overviews or AI Mode. Those are Search,
+ *    served from the Googlebot index. Per Google's crawler docs: "Google-Extended
+ *    does not impact a site's inclusion in Google Search nor is it used as a
+ *    ranking signal in Google Search." It DOES gate Gemini Apps / Vertex AI
+ *    grounding, so blocking it only cost us Gemini citations. Accepted tradeoff:
+ *    our content may also be used to train future Gemini models.
+ *  - PerplexityBot is Perplexity's search-index bot — per their docs, "not used
+ *    to crawl content for AI foundation models." Blocking it was pure lost
+ *    referral traffic for no training benefit.
+ *
+ * Still blocked upstream, intentionally: GPTBot, ClaudeBot, anthropic-ai, CCBot,
+ * Bytespider, Amazonbot, FacebookBot, meta-externalagent, Applebot-Extended,
+ * omgili/omgilibot, SentiBot.
+ *
+ * Note that training and retrieval are separate product tokens for the same
+ * vendor — GPTBot != OAI-SearchBot, ClaudeBot != Claude-SearchBot — and matching
+ * is on the exact token, so blocking one never blocks the other. The retrieval
+ * tokens are allowed by omission; do not add Allow: groups for them, since a
+ * named group makes that bot ignore "User-agent: *" and lose the wpforms/wpo
+ * exclusions.
+ *
+ * Priority 99 so this sees the fully assembled output from every other plugin.
+ */
+add_filter('robots_txt', function ($output) {
+    if (!is_string($output) || $output === '') {
+        return $output;
+    }
+
+    // Product tokens to stop blocking. Lowercase — robots.txt user-agent
+    // matching is case-insensitive.
+    $unblock = ['google-extended', 'perplexitybot'];
+
+    $normalised = preg_replace('/\R/', "\n", $output);
+    $chunks     = preg_split('/\n\s*\n/', trim($normalised));
+    $out        = [];
+
+    foreach ($chunks as $chunk) {
+        $kept    = [];
+        $agents  = 0;
+        $dropped = 0;
+
+        foreach (explode("\n", $chunk) as $line) {
+            if (preg_match('/^\s*user-agent\s*:\s*(\S+)\s*$/i', $line, $m)) {
+                $agents++;
+                if (in_array(strtolower($m[1]), $unblock, true)) {
+                    $dropped++;
+                    continue;
+                }
+            }
+            $kept[] = $line;
+        }
+
+        // The group existed only to block tokens we are unblocking. Drop it
+        // whole, so its orphaned "Disallow: /" cannot attach to the next group
+        // and silently block something else.
+        if ($agents > 0 && $agents === $dropped) {
+            continue;
+        }
+
+        $out[] = implode("\n", $kept);
+    }
+
+    return implode("\n\n", $out) . "\n";
+}, 99);
