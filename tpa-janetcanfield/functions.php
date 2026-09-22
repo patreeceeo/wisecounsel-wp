@@ -54,23 +54,25 @@ function tpa_janetcanfield_enqueue() {
         ['in_footer' => true, 'strategy' => 'defer']
     );
 
-    // Bio card (patterns/bio-card.php) — only on pages whose content uses one.
+    // Card / bio card (patterns/card.php, patterns/bio-card.php) — only on
+    // pages whose content uses one. "ln-bio-card" is matched separately because
+    // page 128 still carries the pre-split legacy classes (see card.css).
     // The handle ends in "-client" on purpose: tpa-base's perf-optimizations.php
     // inlines any child-theme "*-client" stylesheet into <head>, so this costs
     // no extra request. Landing pages inline the same file themselves.
-    if ( is_singular() && false !== strpos( (string) get_post_field( 'post_content', get_queried_object_id() ), 'ln-bio-card' ) ) {
+    if ( is_singular() && preg_match( '/\bln-(?:bio-)?card\b/', (string) get_post_field( 'post_content', get_queried_object_id() ) ) ) {
         wp_enqueue_style(
-            'tpa-janetcanfield-bio-card-client',
-            $child_uri . '/assets/css/bio-card.css',
+            'tpa-janetcanfield-card-client',
+            $child_uri . '/assets/css/card.css',
             [],
-            filemtime($child_dir . '/assets/css/bio-card.css')
+            filemtime($child_dir . '/assets/css/card.css')
         );
     }
 }
 add_action('wp_enqueue_scripts', 'tpa_janetcanfield_enqueue', 20);
 
 // Block editor: pattern category for the theme's patterns/ folder (WordPress
-// registers the files in it automatically), and the bio card styles inside the
+// registers the files in it automatically), and the card styles inside the
 // editor canvas so the pattern previews the way it renders on the site.
 add_action('init', function () {
     register_block_pattern_category('wise-counsel', ['label' => __('Wise Counsel', 'tpa-janetcanfield')]);
@@ -79,8 +81,8 @@ add_action('enqueue_block_assets', function () {
     if ( ! is_admin() ) {
         return;
     }
-    $path = get_stylesheet_directory() . '/assets/css/bio-card.css';
-    wp_enqueue_style('tpa-janetcanfield-bio-card-editor', get_stylesheet_directory_uri() . '/assets/css/bio-card.css', [], filemtime($path));
+    $path = get_stylesheet_directory() . '/assets/css/card.css';
+    wp_enqueue_style('tpa-janetcanfield-card-editor', get_stylesheet_directory_uri() . '/assets/css/card.css', [], filemtime($path));
 });
 
 // Defer the full (below-fold) client.css with high-priority preload.
@@ -314,7 +316,7 @@ function tpa_janetcanfield_safe_autop( $content ) {
         // delimiters like "<!-- wp:paragraph -->" or "<!-- /wp:group --></div>"
         // — pass through untouched. Buffering them wrapped each in <p>…</p>,
         // which do_blocks() then tore into stray empty <p> elements (10–46 per
-        // service page as of Sep 2026). Inside a grid like .ln-bio-card those
+        // service page as of Sep 2026). Inside a grid like .ln-card those
         // strays become extra grid cells and break the layout.
         if ( strpos( $trimmed, '<!--' ) === 0 ) {
             $flush();

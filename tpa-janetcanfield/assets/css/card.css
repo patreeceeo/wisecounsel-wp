@@ -1,0 +1,60 @@
+/*
+ * Card — cream panel with a title and short copy. The bio card is a card
+ * with a headshot column added on the left.
+ *
+ *   Card:      .ln-card > .ln-card-body > .ln-card-title + p…
+ *   Bio card:  .ln-card.ln-bio-card > .ln-bio-card-photo > (figure >) img
+ *                                   > .ln-card-body > .ln-card-title + p…
+ *   (Patterns: patterns/card.php and patterns/bio-card.php, built as a Columns
+ *   block with one column per part. Landing page: page-landing-nest.php.)
+ *
+ * Single source for every card on the site:
+ *  - page-landing-nest.php inlines this file into its <style> block.
+ *  - Inner pages enqueue it only when post_content contains "ln-card" or
+ *    "ln-bio-card" (see tpa_janetcanfield_enqueue in functions.php).
+ *  - The block editor loads it via enqueue_block_assets.
+ *
+ * Legacy aliases: before the card/bio-card split, bio cards were marked up as
+ * .ln-bio-card (without .ln-card) > .ln-bio-card-body > .ln-bio-card-name.
+ * Page 128 (/queer-christian-counseling/) was saved that way. The :is() lists
+ * below keep it rendering; once it is re-saved with the new classes, the
+ * .ln-bio-card-body / .ln-bio-card-name entries and the bare .ln-bio-card in the
+ * base rules can go.
+ *
+ * Inner selectors are prefixed with the card class so they outrank
+ * .service-body p etc. from client.css, which loads after this file.
+ * Colour fallbacks match :root in client-critical.css.
+ */
+
+/* ── Card ─────────────────────────────────────────────────────────────── */
+:is(.ln-card,.ln-bio-card){display:grid;grid-template-columns:1fr;background:var(--cream,#FDFCFA);border:1px solid rgba(139,111,71,.16);
+  border-radius:16px 16px 16px 6px;overflow:hidden;box-shadow:0 22px 48px -26px rgba(45,42,38,.42);
+  max-width:880px;margin:36px auto 0;text-align:left}
+:is(.ln-card,.ln-bio-card) :is(.ln-card-body,.ln-bio-card-body){padding:30px 34px;display:flex;flex-direction:column;justify-content:center}
+:is(.ln-card,.ln-bio-card) :is(.ln-card-title,.ln-bio-card-name){display:block;font-family:var(--font-head,'Alegreya',serif);font-weight:700;color:var(--primary-dark,#6E5636);
+  font-size:1.32rem;line-height:1.3;margin:0 0 10px}
+:is(.ln-card,.ln-bio-card) :is(.ln-card-body,.ln-bio-card-body) p:not(.ln-card-title,.ln-bio-card-name){color:var(--text-soft,#5C554B);font-size:1rem;line-height:1.65;margin:0 0 10px}
+:is(.ln-card,.ln-bio-card) :is(.ln-card-body,.ln-bio-card-body) > :last-child{margin-bottom:0}
+:is(.ln-card,.ln-bio-card) :is(.ln-card-body,.ln-bio-card-body) strong{color:var(--primary-dark,#6E5636)}
+
+/* ── Bio card: card + headshot column ─────────────────────────────────── */
+/* Must stay after the card rules — same specificity, wins by order. */
+.ln-bio-card{grid-template-columns:250px 1fr}
+.ln-bio-card .ln-bio-card-photo{position:relative;min-height:100%;margin:0}
+/* !important on size: the block editor writes inline width/height/aspect-ratio
+   onto the <img> if someone drags the resize handle. */
+.ln-bio-card .ln-bio-card-photo img{position:absolute;inset:0;width:100% !important;height:100% !important;aspect-ratio:auto !important;
+  object-fit:cover;object-position:center 16%;display:block;max-width:none}
+/* Block editor only: the image block wraps its <img> in a position:relative element that has no height of its own (the img
+   is absolutely positioned, so it contributes none). That box became the img's
+   containing block, so inset:0 resolved to zero height. Making it static hands
+   the containing block back to .ln-bio-card-photo (or the column wrapping it).
+   The class never appears on the published site. */
+.ln-bio-card .ln-bio-card-photo .block-editor-block-list__block {position: static !important;}
+@media (max-width:680px){
+  .ln-bio-card{grid-template-columns:1fr}
+  /* 260px cropped Janet at the chin — the frame is 760x879, so at the card's
+     ~336px width it needs ~389px to show uncropped. 350px clears her chin and
+     collar with only a slight trim. */
+  .ln-bio-card .ln-bio-card-photo{min-height:350px}
+}

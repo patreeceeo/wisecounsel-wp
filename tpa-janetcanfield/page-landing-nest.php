@@ -208,8 +208,8 @@ $twig = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBo
   .ln-pillar h3{font-size:1.28rem;color:var(--primary-dark);margin-bottom:10px}
   .ln-pillar p{color:var(--text-soft);font-size:.98rem}
   .ln-pillar .twig{margin-bottom:14px}
-  /* quick-bio card — shared with the block editor pattern; single source in assets/css/bio-card.css */
-  <?php $tpa_bio_css = get_theme_file_path('assets/css/bio-card.css'); if (is_readable($tpa_bio_css)) { readfile($tpa_bio_css); } ?>
+  /* quick-bio card — shared with the block editor patterns; single source in assets/css/card.css */
+  <?php $tpa_bio_css = get_theme_file_path('assets/css/card.css'); if (is_readable($tpa_bio_css)) { readfile($tpa_bio_css); } ?>
   /* faq */
   .ln-faq{background:var(--bg-tan)}
   .ln-faq-list{max-width:820px;margin:30px auto 0}
@@ -516,10 +516,10 @@ $twig = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBo
       <?php if ($trust_h): ?><h2><?php echo esc_html($trust_h); ?></h2><?php endif; ?>
     </div>
     <?php if ($about_bio): ?>
-    <div class="ln-bio-card ln-rev">
+    <div class="ln-card ln-bio-card ln-rev">
       <div class="ln-bio-card-photo"><?php tpa_picture($hero_shot, 'Janet Canfield', ['width'=>'300','height'=>'336','loading'=>'lazy','decoding'=>'async']); ?></div>
-      <div class="ln-bio-card-body">
-        <span class="ln-bio-card-name">Janet Canfield, MA</span>
+      <div class="ln-card-body">
+        <span class="ln-card-title">Janet Canfield, MA</span>
         <?php echo wp_kses_post($about_bio); ?>
       </div>
     </div>
