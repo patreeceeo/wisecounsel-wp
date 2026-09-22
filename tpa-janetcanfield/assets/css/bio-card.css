@@ -31,7 +31,7 @@
    containing block, so inset:0 resolved to zero height. Making it static hands
    the containing block back to .ln-bio-card-photo (or the column wrapping it).
    The class never appears on the published site. */
-.ln-bio-card .ln-bio-card-photo .block-editor-block-list__layout .block-editor-block-list__block {position: static !important;}
+.ln-bio-card .ln-bio-card-photo .block-editor-block-list__block {position: static !important;}
 .ln-bio-card .ln-bio-card-body{padding:30px 34px;display:flex;flex-direction:column;justify-content:center}
 .ln-bio-card .ln-bio-card-name{display:block;font-family:var(--font-head,'Alegreya',serif);font-weight:700;color:var(--primary-dark,#6E5636);
   font-size:1.32rem;line-height:1.3;margin:0 0 10px}
