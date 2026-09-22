@@ -1,0 +1,41 @@
+/*
+ * Bio card — headshot left, copy right; stacks under 680px.
+ *
+ * Single source for every .ln-bio-card on the site:
+ *  - page-landing-nest.php inlines this file into its <style> block.
+ *  - Inner pages enqueue it only when post_content contains "ln-bio-card"
+ *    (see tpa_janetcanfield_enqueue in functions.php).
+ *  - The block editor loads it via enqueue_block_assets so the
+ *    "Bio card" pattern (patterns/bio-card.php) previews correctly.
+ *
+ * Markup it supports (both forms work):
+ *   Hand-written:  div.ln-bio-card > div.ln-bio-card-photo > (picture|img)
+ *                                  > div.ln-bio-card-body > span.ln-bio-card-name + p…
+ *   Block pattern: div.wp-block-group.ln-bio-card > figure.wp-block-image.ln-bio-card-photo > img
+ *                                  > div.wp-block-group.ln-bio-card-body > p.ln-bio-card-name + p…
+ *
+ * Inner selectors are prefixed with .ln-bio-card so they outrank
+ * .service-body p etc. from client.css, which loads after this file.
+ * Colour fallbacks match :root in client-critical.css.
+ */
+.ln-bio-card{display:grid;grid-template-columns:250px 1fr;background:var(--cream,#FDFCFA);border:1px solid rgba(139,111,71,.16);
+  border-radius:16px 16px 16px 6px;overflow:hidden;box-shadow:0 22px 48px -26px rgba(45,42,38,.42);
+  max-width:880px;margin:36px auto 0;text-align:left}
+.ln-bio-card .ln-bio-card-photo{position:relative;min-height:100%;margin:0}
+/* !important on size: the block editor writes inline width/height/aspect-ratio
+   onto the <img> if someone drags the resize handle. */
+.ln-bio-card .ln-bio-card-photo img{position:absolute;inset:0;width:100% !important;height:100% !important;aspect-ratio:auto !important;
+  object-fit:cover;object-position:center 16%;display:block;max-width:none}
+.ln-bio-card .ln-bio-card-body{padding:30px 34px;display:flex;flex-direction:column;justify-content:center}
+.ln-bio-card .ln-bio-card-name{display:block;font-family:var(--font-head,'Alegreya',serif);font-weight:700;color:var(--primary-dark,#6E5636);
+  font-size:1.32rem;line-height:1.3;margin:0 0 10px}
+.ln-bio-card .ln-bio-card-body p:not(.ln-bio-card-name){color:var(--text-soft,#5C554B);font-size:1rem;line-height:1.65;margin:0 0 10px}
+.ln-bio-card .ln-bio-card-body > :last-child{margin-bottom:0}
+.ln-bio-card .ln-bio-card-body strong{color:var(--primary-dark,#6E5636)}
+@media (max-width:680px){
+  .ln-bio-card{grid-template-columns:1fr}
+  /* 260px cropped Janet at the chin — the frame is 760x879, so at the card's
+     ~336px width it needs ~389px to show uncropped. 350px clears her chin and
+     collar with only a slight trim. */
+  .ln-bio-card .ln-bio-card-photo{min-height:350px}
+}

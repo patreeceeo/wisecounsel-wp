@@ -53,8 +53,35 @@ function tpa_janetcanfield_enqueue() {
         filemtime($child_dir . '/assets/js/client.js'),
         ['in_footer' => true, 'strategy' => 'defer']
     );
+
+    // Bio card (patterns/bio-card.php) — only on pages whose content uses one.
+    // The handle ends in "-client" on purpose: tpa-base's perf-optimizations.php
+    // inlines any child-theme "*-client" stylesheet into <head>, so this costs
+    // no extra request. Landing pages inline the same file themselves.
+    if ( is_singular() && false !== strpos( (string) get_post_field( 'post_content', get_queried_object_id() ), 'ln-bio-card' ) ) {
+        wp_enqueue_style(
+            'tpa-janetcanfield-bio-card-client',
+            $child_uri . '/assets/css/bio-card.css',
+            [],
+            filemtime($child_dir . '/assets/css/bio-card.css')
+        );
+    }
 }
 add_action('wp_enqueue_scripts', 'tpa_janetcanfield_enqueue', 20);
+
+// Block editor: pattern category for the theme's patterns/ folder (WordPress
+// registers the files in it automatically), and the bio card styles inside the
+// editor canvas so the pattern previews the way it renders on the site.
+add_action('init', function () {
+    register_block_pattern_category('wise-counsel', ['label' => __('Wise Counsel', 'tpa-janetcanfield')]);
+});
+add_action('enqueue_block_assets', function () {
+    if ( ! is_admin() ) {
+        return;
+    }
+    $path = get_stylesheet_directory() . '/assets/css/bio-card.css';
+    wp_enqueue_style('tpa-janetcanfield-bio-card-editor', get_stylesheet_directory_uri() . '/assets/css/bio-card.css', [], filemtime($path));
+});
 
 // Defer the full (below-fold) client.css with high-priority preload.
 add_action('wp_head', function() {
@@ -280,6 +307,18 @@ function tpa_janetcanfield_safe_autop( $content ) {
             if ( stripos( $trimmed, '</p>' ) !== false ) {
                 $in_p = false;
             }
+            continue;
+        }
+
+        // Lines that start with an HTML comment — in practice block-editor
+        // delimiters like "<!-- wp:paragraph -->" or "<!-- /wp:group --></div>"
+        // — pass through untouched. Buffering them wrapped each in <p>…</p>,
+        // which do_blocks() then tore into stray empty <p> elements (10–46 per
+        // service page as of Sep 2026). Inside a grid like .ln-bio-card those
+        // strays become extra grid cells and break the layout.
+        if ( strpos( $trimmed, '<!--' ) === 0 ) {
+            $flush();
+            $out[] = $trimmed;
             continue;
         }
 
