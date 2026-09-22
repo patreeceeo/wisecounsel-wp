@@ -7,7 +7,7 @@ get_header();
 $child_img = get_stylesheet_directory_uri() . '/assets/images/';
 $slug      = get_post_field('post_name', get_the_ID());
 
-// Hero image: featured image (via page-overrides) beats ACF hero_image beats slug map.
+// Hero image: Featured Image (handled in tpa_janetcanfield_hero_picture) beats slug map.
 $hero_map = [
     'individual-therapy' => 'individual-therapy-hero-wm.jpg',
     'lgbtqia-therapy'    => 'lgbtqia-therapy-hero-wm.jpg',
