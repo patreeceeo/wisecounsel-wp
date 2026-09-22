@@ -12,16 +12,6 @@
 ?>
 <!-- wp:columns {"className":"ln-card ln-rev in"} -->
 <div class="wp-block-columns ln-card ln-rev in"><!-- wp:column {"verticalAlignment":"top","className":"ln-card-body"} -->
-<div class="wp-block-column is-vertically-aligned-top ln-card-body"><!-- wp:paragraph {"className":"ln-card-title"} -->
-<p class="ln-card-title">Card title</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>A short paragraph of text for this card.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>Add or remove paragraphs as needed.</p>
-<!-- /wp:paragraph --></div>
+<div class="wp-block-column is-vertically-aligned-top ln-card-body"></div>
 <!-- /wp:column --></div>
 <!-- /wp:columns -->
