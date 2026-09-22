@@ -249,6 +249,22 @@ function tpa_janetcanfield_hero_picture( $file ) {
         'loading'       => 'eager',
         'decoding'      => 'async',
     ];
+
+    // Featured Image is the client-facing override (matches tpa-base/page.php
+    // and the "Hero image" note in Page Settings). page-overrides.php only
+    // swaps the CSS background, which this <img> paints over, so it has to be
+    // honoured here. Not applied on the front page or landing pages.
+    $page_id = get_queried_object_id();
+    if ( is_page() && ! is_front_page() && has_post_thumbnail( $page_id ) ) {
+        echo wp_get_attachment_image(
+            get_post_thumbnail_id( $page_id ),
+            'full',
+            false,
+            $attrs + [ 'alt' => '', 'sizes' => '100vw' ]
+        );
+        return;
+    }
+
     if ( file_exists( $dir . $file ) ) {
         $size = @getimagesize( $dir . $file );
         if ( $size ) {
