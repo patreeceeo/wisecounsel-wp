@@ -208,24 +208,8 @@ $twig = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBo
   .ln-pillar h3{font-size:1.28rem;color:var(--primary-dark);margin-bottom:10px}
   .ln-pillar p{color:var(--text-soft);font-size:.98rem}
   .ln-pillar .twig{margin-bottom:14px}
-  /* quick-bio card: wide, short rectangle — headshot left, copy right */
-  .ln-bio-card{display:grid;grid-template-columns:250px 1fr;background:var(--cream);border:1px solid rgba(139,111,71,.16);
-    border-radius:16px 16px 16px 6px;overflow:hidden;box-shadow:0 22px 48px -26px rgba(45,42,38,.42);
-    max-width:880px;margin:36px auto 0;text-align:left}
-  .ln-bio-card-photo{position:relative;min-height:100%}
-  .ln-bio-card-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 16%;display:block}
-  .ln-bio-card-body{padding:30px 34px;display:flex;flex-direction:column;justify-content:center}
-  .ln-bio-card-name{display:block;font-family:var(--head);font-weight:700;color:var(--primary-dark);font-size:1.32rem;margin-bottom:10px}
-  .ln-bio-card-body p{color:var(--text-soft);font-size:1rem;line-height:1.65;margin-bottom:10px}
-  .ln-bio-card-body p:last-child{margin-bottom:0}
-  .ln-bio-card-body strong{color:var(--primary-dark)}
-  @media (max-width:680px){
-    .ln-bio-card{grid-template-columns:1fr}
-    /* 260px cropped Janet at the chin — the frame is 760x879, so at the card's
-       ~336px width it needs ~389px to show uncropped. 350px clears her chin and
-       collar with only a slight trim. */
-    .ln-bio-card-photo{min-height:350px}
-  }
+  /* quick-bio card — shared with the block editor pattern; single source in assets/css/bio-card.css */
+  <?php $tpa_bio_css = get_theme_file_path('assets/css/bio-card.css'); if (is_readable($tpa_bio_css)) { readfile($tpa_bio_css); } ?>
   /* faq */
   .ln-faq{background:var(--bg-tan)}
   .ln-faq-list{max-width:820px;margin:30px auto 0}
