@@ -9,11 +9,11 @@ $practice    = tpa_field('site_identity_practice_name', 'option', 'Wise Counsel'
 $phone       = tpa_field('site_identity_phone', 'option', '(828) 222-0809');
 $phone_clean = preg_replace('/[^0-9]/', '', $phone);
 $is_front    = is_front_page();
-$fonts_url   = 'https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Figtree:wght@400;500;600&display=swap';
 // FAQ "Field Notes" uses Caveat for handwritten category labels.
-if (is_page_template('page-faq.php')) {
-    $fonts_url = 'https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Figtree:wght@400;500;600&family=Caveat:wght@500;600;700&display=swap';
-}
+$needs_caveat = is_page_template('page-faq.php');
+// Only reached if assets/fonts/ is missing from the deploy -- see
+// tpa_janetcanfield_font_faces() in functions.php.
+$fonts_url   = 'https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Figtree:wght@400;500;600' . ($needs_caveat ? '&family=Caveat:wght@500;600;700' : '') . '&display=swap';
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -33,10 +33,12 @@ if (is_page_template('page-faq.php')) {
               type="image/webp" fetchpriority="high">
     <?php endif; ?>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="<?php echo esc_url($fonts_url); ?>" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="<?php echo esc_url($fonts_url); ?>" rel="stylesheet"></noscript>
+    <?php if (!tpa_janetcanfield_font_faces($needs_caveat)): ?>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="<?php echo esc_url($fonts_url); ?>" rel="stylesheet" media="print" onload="this.media='all'">
+        <noscript><link href="<?php echo esc_url($fonts_url); ?>" rel="stylesheet"></noscript>
+    <?php endif; ?>
 
     <?php wp_head(); ?>
 </head>
@@ -49,8 +51,8 @@ if (is_page_template('page-faq.php')) {
     <a class="brand" href="<?php echo esc_url(home_url('/')); ?>" aria-label="<?php echo esc_attr($practice); ?> home">
       <?php // Marks render at most 58px tall, so the assets are 143x160 (2.7x) and
             // go through <picture> for the alpha-preserving WebP. ?>
-      <?php tpa_picture('logo-mark-ink.png', '', ['class'=>'brand-mark mark-ink','width'=>'143','height'=>'160','fetchpriority'=>'high','decoding'=>'async']); ?>
-      <?php tpa_picture('logo-mark-cream.png', '', ['class'=>'brand-mark mark-cream','width'=>'143','height'=>'160','decoding'=>'async']); ?>
+      <?php tpa_picture('logo-mark-ink.png', '', ['class'=>'brand-mark mark-ink','width'=>'143','height'=>'160','decoding'=>'async']); ?>
+      <?php tpa_picture('logo-mark-cream.png', '', ['class'=>'brand-mark mark-cream','width'=>'143','height'=>'160','fetchpriority'=>'low','decoding'=>'async']); ?>
       <span class="brand-text">
         <span class="brand-name">wise <span>counsel</span></span>
         <span class="brand-tag">Janet Canfield &middot; Asheville, NC</span>

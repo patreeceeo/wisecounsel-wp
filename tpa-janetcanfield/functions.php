@@ -133,6 +133,86 @@ add_action('wp_enqueue_scripts', function() {
 }, 100);
 
 /**
+ * Self-hosted webfonts.
+ *
+ * The Google Fonts <link> never actually loaded. LiteSpeed's CSS-async rewrite
+ * recognised the media="print" onload="this.media='all'" pattern, stripped the
+ * live <link>, parked a copy in <noscript>, and deferred re-injection to
+ * css_async.min.js -- which restored the UCSS bundle but not the fonts. The site
+ * had been rendering in system fallbacks: document.fonts.size === 0, zero font
+ * requests, h1 computing to Alegreya with no Alegreya delivered.
+ *
+ * So the @font-face rules are emitted inline in <head>, marked data-no-optimize
+ * so LiteSpeed leaves them alone, pointing at same-origin latin-subset variable
+ * woff2. That collapses the chain from
+ *   HTML -> css_async.min.js -> fonts.googleapis.com -> fonts.gstatic.com
+ * (4 levels, 3 origins, dead-ending at level 2) down to HTML -> woff2.
+ *
+ * Only the two above-fold upright faces are preloaded. The italics and Caveat are
+ * declared but deliberately unpreloaded: a browser fetches a declared face only
+ * when a glyph actually paints in it.
+ *
+ * Returns false -- without emitting anything -- if assets/fonts/ did not make it
+ * into the deploy, so the caller can fall back to the Google Fonts path rather
+ * than shipping a page with no fonts at all.
+ *
+ * @param bool $with_caveat Also declare Caveat (page-faq.php "Field Notes" labels).
+ * @return bool True if the inline faces were emitted.
+ */
+function tpa_janetcanfield_font_faces( $with_caveat = false ) {
+    $dir = get_stylesheet_directory() . '/assets/fonts/';
+    $uri = get_stylesheet_directory_uri() . '/assets/fonts/';
+
+    // [ family, style, weight range, file, preload? ]
+    $faces = [
+        [ 'Figtree',  'normal', '300 900', 'figtree-300-900-normal.woff2',  true  ],
+        [ 'Alegreya', 'normal', '400 900', 'alegreya-400-900-normal.woff2', true  ],
+        [ 'Figtree',  'italic', '300 900', 'figtree-300-900-italic.woff2',  false ],
+        [ 'Alegreya', 'italic', '400 900', 'alegreya-400-900-italic.woff2', false ],
+    ];
+    if ( $with_caveat ) {
+        $faces[] = [ 'Caveat', 'normal', '400 700', 'caveat-400-700-normal.woff2', false ];
+    }
+
+    foreach ( $faces as $face ) {
+        if ( ! file_exists( $dir . $face[3] ) ) {
+            return false;
+        }
+    }
+
+    // The same latin subset range Google Fonts serves for these families, so glyph
+    // coverage is unchanged from what the site was nominally requesting before.
+    $range = 'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,'
+           . 'U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,'
+           . 'U+2212,U+2215,U+FEFF,U+FFFD';
+
+    foreach ( $faces as $face ) {
+        if ( $face[4] ) {
+            printf(
+                '<link rel="preload" as="font" type="font/woff2" href="%s" crossorigin>' . "\n",
+                esc_url( $uri . $face[3] )
+            );
+        }
+    }
+
+    echo '<style id="tpa-fonts" data-no-optimize="1">';
+    foreach ( $faces as $face ) {
+        printf(
+            "@font-face{font-family:'%s';font-style:%s;font-weight:%s;font-display:swap;"
+                . "src:url(%s) format('woff2');unicode-range:%s}",
+            $face[0],
+            $face[1],
+            $face[2],
+            esc_url( $uri . $face[3] ),
+            $range
+        );
+    }
+    echo "</style>\n";
+
+    return true;
+}
+
+/**
  * Turn bare phone numbers (client prefers TEXT -> sms:) and email addresses in
  * rendered content into obvious links. Existing <a>…</a> are left untouched.
  */
@@ -644,3 +724,77 @@ add_action('acf/init', function() {
         'menu_order'=>0,'position'=>'normal','style'=>'default','label_placement'=>'top',
     ]);
 });
+
+/**
+ * AI crawler policy — reviewed 2026-09-17.
+ *
+ * Rule of thumb: block crawlers that harvest for MODEL TRAINING; allow the ones
+ * that fetch at ANSWER TIME, because those are what cite and link back.
+ *
+ * Google-Extended and PerplexityBot are added to robots.txt by a plugin further
+ * up this filter chain. Both blocks were counterproductive:
+ *
+ *  - Google-Extended does NOT affect AI Overviews or AI Mode. Those are Search,
+ *    served from the Googlebot index. Per Google's crawler docs: "Google-Extended
+ *    does not impact a site's inclusion in Google Search nor is it used as a
+ *    ranking signal in Google Search." It DOES gate Gemini Apps / Vertex AI
+ *    grounding, so blocking it only cost us Gemini citations. Accepted tradeoff:
+ *    our content may also be used to train future Gemini models.
+ *  - PerplexityBot is Perplexity's search-index bot — per their docs, "not used
+ *    to crawl content for AI foundation models." Blocking it was pure lost
+ *    referral traffic for no training benefit.
+ *
+ * Still blocked upstream, intentionally: GPTBot, ClaudeBot, anthropic-ai, CCBot,
+ * Bytespider, Amazonbot, FacebookBot, meta-externalagent, Applebot-Extended,
+ * omgili/omgilibot, SentiBot.
+ *
+ * Note that training and retrieval are separate product tokens for the same
+ * vendor — GPTBot != OAI-SearchBot, ClaudeBot != Claude-SearchBot — and matching
+ * is on the exact token, so blocking one never blocks the other. The retrieval
+ * tokens are allowed by omission; do not add Allow: groups for them, since a
+ * named group makes that bot ignore "User-agent: *" and lose the wpforms/wpo
+ * exclusions.
+ *
+ * Priority 99 so this sees the fully assembled output from every other plugin.
+ */
+add_filter('robots_txt', function ($output) {
+    if (!is_string($output) || $output === '') {
+        return $output;
+    }
+
+    // Product tokens to stop blocking. Lowercase — robots.txt user-agent
+    // matching is case-insensitive.
+    $unblock = ['google-extended', 'perplexitybot'];
+
+    $normalised = preg_replace('/\R/', "\n", $output);
+    $chunks     = preg_split('/\n\s*\n/', trim($normalised));
+    $out        = [];
+
+    foreach ($chunks as $chunk) {
+        $kept    = [];
+        $agents  = 0;
+        $dropped = 0;
+
+        foreach (explode("\n", $chunk) as $line) {
+            if (preg_match('/^\s*user-agent\s*:\s*(\S+)\s*$/i', $line, $m)) {
+                $agents++;
+                if (in_array(strtolower($m[1]), $unblock, true)) {
+                    $dropped++;
+                    continue;
+                }
+            }
+            $kept[] = $line;
+        }
+
+        // The group existed only to block tokens we are unblocking. Drop it
+        // whole, so its orphaned "Disallow: /" cannot attach to the next group
+        // and silently block something else.
+        if ($agents > 0 && $agents === $dropped) {
+            continue;
+        }
+
+        $out[] = implode("\n", $kept);
+    }
+
+    return implode("\n\n", $out) . "\n";
+}, 99);
