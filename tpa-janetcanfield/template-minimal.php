@@ -1,6 +1,9 @@
 <?php
 /**
- * Wise Counsel — Generic inner page (Privacy, Terms, Thank You, misc).
+ * Template Name: Minimal
+ * Template Post Type: page
+ *
+ * Wise Counsel — Generic inner page without the content container.
  * Hero image auto-detected by slug; body from post_content; final-cta.
  */
 get_header();
