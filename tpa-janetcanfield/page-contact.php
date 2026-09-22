@@ -16,7 +16,6 @@ $addr_parts = explode(',', $address, 2);
 $addr_line1 = trim($addr_parts[0]);
 $addr_line2 = isset($addr_parts[1]) ? trim($addr_parts[1]) : '';
 
-$form_shortcode = tpa_field('form_wpforms_shortcode', get_the_ID()) ?: tpa_field('form_wpforms_shortcode', 'option');
 $intro     = get_post_field('post_content', get_the_ID());
 $info_head = tpa_field('contact_info_heading', get_the_ID(), 'Help is Just a Text Away');
 $info_body = tpa_field('contact_info_body', get_the_ID());
@@ -85,18 +84,7 @@ $form_head = tpa_field('contact_form_heading', get_the_ID(), 'Send a Message');
 
         <div class="contact-form-col">
           <?php if ($form_head): ?><h3><?php echo esc_html($form_head); ?></h3><?php endif; ?>
-          <?php
-          if ($form_shortcode) {
-              echo do_shortcode($form_shortcode);
-          } else { ?>
-            <form action="#" method="post">
-              <div class="form-row"><label for="c-name">Name</label><input id="c-name" type="text" name="name" required></div>
-              <div class="form-row"><label for="c-email">Email</label><input id="c-email" type="email" name="email" required></div>
-              <div class="form-row"><label for="c-phone">Phone</label><input id="c-phone" type="tel" name="phone"></div>
-              <div class="form-row"><label for="c-msg">What brings you here?</label><textarea id="c-msg" name="message"></textarea></div>
-              <button class="btn btn-primary" type="submit">Send</button>
-            </form>
-          <?php } ?>
+          <?php tpa_janetcanfield_contact_form( [ 'id_prefix' => 'c', 'submit_text' => 'Send' ] ); ?>
         </div>
       </div>
     </div>

@@ -133,6 +133,86 @@ add_action('wp_enqueue_scripts', function() {
 }, 100);
 
 /**
+ * Self-hosted webfonts.
+ *
+ * The Google Fonts <link> never actually loaded. LiteSpeed's CSS-async rewrite
+ * recognised the media="print" onload="this.media='all'" pattern, stripped the
+ * live <link>, parked a copy in <noscript>, and deferred re-injection to
+ * css_async.min.js -- which restored the UCSS bundle but not the fonts. The site
+ * had been rendering in system fallbacks: document.fonts.size === 0, zero font
+ * requests, h1 computing to Alegreya with no Alegreya delivered.
+ *
+ * So the @font-face rules are emitted inline in <head>, marked data-no-optimize
+ * so LiteSpeed leaves them alone, pointing at same-origin latin-subset variable
+ * woff2. That collapses the chain from
+ *   HTML -> css_async.min.js -> fonts.googleapis.com -> fonts.gstatic.com
+ * (4 levels, 3 origins, dead-ending at level 2) down to HTML -> woff2.
+ *
+ * Only the two above-fold upright faces are preloaded. The italics and Caveat are
+ * declared but deliberately unpreloaded: a browser fetches a declared face only
+ * when a glyph actually paints in it.
+ *
+ * Returns false -- without emitting anything -- if assets/fonts/ did not make it
+ * into the deploy, so the caller can fall back to the Google Fonts path rather
+ * than shipping a page with no fonts at all.
+ *
+ * @param bool $with_caveat Also declare Caveat (page-faq.php "Field Notes" labels).
+ * @return bool True if the inline faces were emitted.
+ */
+function tpa_janetcanfield_font_faces( $with_caveat = false ) {
+    $dir = get_stylesheet_directory() . '/assets/fonts/';
+    $uri = get_stylesheet_directory_uri() . '/assets/fonts/';
+
+    // [ family, style, weight range, file, preload? ]
+    $faces = [
+        [ 'Figtree',  'normal', '300 900', 'figtree-300-900-normal.woff2',  true  ],
+        [ 'Alegreya', 'normal', '400 900', 'alegreya-400-900-normal.woff2', true  ],
+        [ 'Figtree',  'italic', '300 900', 'figtree-300-900-italic.woff2',  false ],
+        [ 'Alegreya', 'italic', '400 900', 'alegreya-400-900-italic.woff2', false ],
+    ];
+    if ( $with_caveat ) {
+        $faces[] = [ 'Caveat', 'normal', '400 700', 'caveat-400-700-normal.woff2', false ];
+    }
+
+    foreach ( $faces as $face ) {
+        if ( ! file_exists( $dir . $face[3] ) ) {
+            return false;
+        }
+    }
+
+    // The same latin subset range Google Fonts serves for these families, so glyph
+    // coverage is unchanged from what the site was nominally requesting before.
+    $range = 'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,'
+           . 'U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,'
+           . 'U+2212,U+2215,U+FEFF,U+FFFD';
+
+    foreach ( $faces as $face ) {
+        if ( $face[4] ) {
+            printf(
+                '<link rel="preload" as="font" type="font/woff2" href="%s" crossorigin>' . "\n",
+                esc_url( $uri . $face[3] )
+            );
+        }
+    }
+
+    echo '<style id="tpa-fonts" data-no-optimize="1">';
+    foreach ( $faces as $face ) {
+        printf(
+            "@font-face{font-family:'%s';font-style:%s;font-weight:%s;font-display:swap;"
+                . "src:url(%s) format('woff2');unicode-range:%s}",
+            $face[0],
+            $face[1],
+            $face[2],
+            esc_url( $uri . $face[3] ),
+            $range
+        );
+    }
+    echo "</style>\n";
+
+    return true;
+}
+
+/**
  * Turn bare phone numbers (client prefers TEXT -> sms:) and email addresses in
  * rendered content into obvious links. Existing <a>…</a> are left untouched.
  */
@@ -306,6 +386,224 @@ function tpa_janetcanfield_render_body( $post_id ) {
     return $content;
 }
 
+/**
+ * Wise Counsel — shared contact form renderer.
+ *
+ * Every contact form on this site is a WPForms embed: a per-page shortcode
+ * override (field name given by 'shortcode_field') falling back to the
+ * site-wide form saved on the TPA Settings options page. If no shortcode is
+ * configured anywhere, this renders a plain fallback form instead of nothing
+ * — 4 fields (name, email, phone, message), matching the home page's final
+ * CTA card, which is the gold standard for what a contact form on this site
+ * should contain. Do not add fields here without also adding them to the
+ * home page form.
+ *
+ * @param array $args {
+ *     @type int    $post_id         Post to check for a per-page shortcode override. Default get_the_ID().
+ *     @type string $shortcode_field ACF field name for the per-page override. Default 'form_wpforms_shortcode'.
+ *     @type string $id_prefix       Prefix for the fallback form's field ids, so more than one instance can
+ *                                   appear on a single page without id collisions. Default 'f'.
+ *     @type string $submit_text     Fallback form's submit button label. Default 'Request a Consultation'.
+ *     @type bool   $fallback        Whether to render the plain fallback form when no shortcode is configured
+ *                                   anywhere. Default true.
+ * }
+ */
+function tpa_janetcanfield_contact_form( $args = [] ) {
+    $args = wp_parse_args( $args, [
+        'post_id'         => null,
+        'shortcode_field' => 'form_wpforms_shortcode',
+        'id_prefix'       => 'f',
+        'submit_text'     => 'Request a Consultation',
+        'fallback'        => true,
+    ] );
+
+    $post_id        = $args['post_id'] ?: get_the_ID();
+    $form_shortcode = tpa_field( $args['shortcode_field'], $post_id ) ?: tpa_field( 'form_wpforms_shortcode', 'option' );
+
+    if ( $form_shortcode ) {
+        echo do_shortcode( $form_shortcode );
+        return;
+    }
+
+    if ( ! $args['fallback'] ) {
+        return;
+    }
+
+    $p = esc_attr( $args['id_prefix'] );
+    ?>
+    <form action="#" method="post" onsubmit="return gtag_report_conversion();">
+      <div class="form-row"><label for="<?php echo $p; ?>-name">Name</label><input id="<?php echo $p; ?>-name" type="text" name="name" required></div>
+      <div class="form-row"><label for="<?php echo $p; ?>-email">Email</label><input id="<?php echo $p; ?>-email" type="email" name="email" required></div>
+      <div class="form-row"><label for="<?php echo $p; ?>-phone">Phone</label><input id="<?php echo $p; ?>-phone" type="tel" name="phone"></div>
+      <div class="form-row"><label for="<?php echo $p; ?>-msg">What brings you here?</label><textarea id="<?php echo $p; ?>-msg" name="message"></textarea></div>
+      <button class="btn btn-primary" type="submit"><?php echo esc_html( $args['submit_text'] ); ?></button>
+    </form>
+    <?php
+}
+
+/**
+ * Primary Google tag ID (the Google Ads account-level gtag.js tag). Shared by
+ * the base tag load and the conversion send_to below so the account ID isn't
+ * repeated across both.
+ */
+define( 'TPA_JANETCANFIELD_GOOGLE_TAG_ID', 'AW-18420858126' );
+
+/**
+ * Name of the one-shot cookie that hands a completed submission from PHP to
+ * the browser, so the conversion can be reported by gtag.
+ */
+define( 'TPA_JANETCANFIELD_CONVERSION_COOKIE', 'tpa_wc_conversion' );
+
+/**
+ * Google Ads base tag.
+ *
+ * Loaded here because nothing else on the site configures the Ads account the
+ * conversion below is reported against. Site Kit's Google tag (GT-5N57QH3S)
+ * did go live during Sept 2026, but it configures a *different* Ads account —
+ * AW-7087027042 — which would not carry a conversion belonging to
+ * TPA_JANETCANFIELD_GOOGLE_TAG_ID. Verified in the page source of
+ * wisecounselwnc.org. Printed on every page rather than only ones with a form,
+ * since Ads expects the base tag site-wide for remarketing, not only where a
+ * conversion happens.
+ *
+ * Two things to settle before leaving this alone:
+ *  - Which Ads account is the right one. If the conversion action actually
+ *    lives in AW-7087027042, then both the constant above and the send_to
+ *    below name the wrong account and no conversion will ever land.
+ *  - If Site Kit's Google tag is later pointed at the same account this uses,
+ *    the two become duplicate gtag.js loads reporting the same action. Delete
+ *    one side at that point rather than keeping both.
+ */
+add_action( 'wp_head', function () {
+    ?>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo esc_attr( TPA_JANETCANFIELD_GOOGLE_TAG_ID ); ?>"></script>
+    <script>/* tpa-gtag */
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', '<?php echo esc_js( TPA_JANETCANFIELD_GOOGLE_TAG_ID ); ?>');
+    </script>
+    <?php
+}, 1 );
+
+/**
+ * Flags a completed submission for the browser to report as a conversion.
+ *
+ * wpforms_process_complete is the single point every successful submission
+ * passes through, whatever the individual form is set to: classic POST or AJAX,
+ * inline-message or redirect confirmation. Hooking it here rather than trying
+ * to detect success in the browser keeps this agnostic to how each form is
+ * configured, and means only real submissions count — validation failures and
+ * spam rejections never reach this hook.
+ *
+ * The handoff is a short-lived cookie rather than a tag printed inline because
+ * a redirect confirmation moves the conversion to the *next* request, and
+ * because this site sits behind LiteSpeed page cache: a server-printed tag
+ * could be cached and replayed to every later visitor. The cookie varies per
+ * visitor while the JS that reads it stays identical for everyone, so the
+ * cached HTML stays correct.
+ */
+add_action( 'wpforms_process_complete', function () {
+    if ( headers_sent() ) {
+        return;
+    }
+    setcookie( TPA_JANETCANFIELD_CONVERSION_COOKIE, '1', [
+        'expires'  => time() + ( 15 * MINUTE_IN_SECONDS ),
+        'path'     => '/',
+        'secure'   => is_ssl(),
+        'httponly' => false, // the browser has to read this one.
+        'samesite' => 'Lax',
+    ] );
+} );
+
+/**
+ * Google Ads conversion reporting.
+ *
+ * gtag_report_conversion() is the standard snippet from Google Ads (conversion
+ * action TPA_JANETCANFIELD_GOOGLE_TAG_ID . '/hLtbCM-L9PgcEI76389E'), reporting
+ * to the base tag added above. It is called from two places:
+ *
+ *  - Whenever the cookie set by wpforms_process_complete above is present. A
+ *    classic POST submission finds it on the reloaded page, and a redirect
+ *    confirmation finds it on the thank-you page. The cookie is cleared as it
+ *    is spent, so a reload or a back-button visit cannot double-count.
+ *  - From the fallback form's own onsubmit — that form has no backend, so no
+ *    submission ever reaches PHP to set the cookie.
+ *
+ * Printed on every page, not just ones with a form, because with a redirect
+ * confirmation the page that owes the conversion is the one *without* a form.
+ */
+add_action( 'wp_footer', function () {
+    ?>
+    <script>/* tpa-gtag */
+    function gtag_report_conversion(url) {
+      var callback = function () {
+        if (typeof(url) != 'undefined') {
+          window.location = url;
+        }
+      };
+      gtag('event', 'conversion', {
+          'send_to': '<?php echo esc_js( TPA_JANETCANFIELD_GOOGLE_TAG_ID ); ?>/hLtbCM-L9PgcEI76389E',
+          'event_callback': callback
+      });
+      return false;
+    }
+    (function () {
+      var name = '<?php echo esc_js( TPA_JANETCANFIELD_CONVERSION_COOKIE ); ?>';
+      function reportIfPending() {
+        if (document.cookie.split('; ').indexOf(name + '=1') === -1) {
+          return;
+        }
+        document.cookie = name + '=; Max-Age=0; path=/';
+        gtag_report_conversion();
+      }
+      reportIfPending();
+      // An AJAX submission never navigates, so nothing would re-read the cookie
+      // until the visitor happens to load another page. WPForms announces that
+      // case through jQuery — note it fires a jQuery event, which plain
+      // addEventListener cannot observe.
+      if (window.jQuery) {
+        window.jQuery(document).on('wpformsAjaxSubmitSuccess', reportIfPending);
+      }
+    })();
+    </script>
+    <?php
+} );
+
+/**
+ * Keep the Google tag out of LiteSpeed's JS loader.
+ *
+ * LiteSpeed rewrites scripts to type="litespeed/javascript" and runs them from
+ * its own loader instead of letting the browser execute them. With JS delay
+ * switched on that can be as late as the visitor's first interaction, so
+ * someone who lands on a confirmation page and leaves without touching
+ * anything would never report the conversion — the tag would simply never run.
+ *
+ * LiteSpeed matches exclusions as plain substrings, against the src for
+ * external scripts and the body for inline ones. Both inline blocks above
+ * carry a 'tpa-gtag' marker so a single keyword covers them, and the loader is
+ * matched by its URL. Site Kit's own tag is excluded too: it is subject to the
+ * same delay, and it is the tag currently carrying AW-7087027042.
+ *
+ * Set through the filters rather than the equivalent boxes under Page
+ * Optimization -> Tuning so the exclusion is version-controlled and survives a
+ * settings re-save or a rebuild. 'litespeed_optm_js_defer_exc' backs the "JS
+ * Deferred / Delayed Excludes" box, which is the one that matters here;
+ * 'litespeed_optimize_js_excludes' keeps the same scripts out of minify and
+ * combine.
+ */
+function tpa_janetcanfield_litespeed_js_exclusions( $excludes ) {
+    $excludes = is_array( $excludes ) ? $excludes : [];
+
+    $excludes[] = 'tpa-gtag';
+    $excludes[] = 'googletagmanager.com/gtag/js';
+    $excludes[] = 'googlesitekit';
+
+    return $excludes;
+}
+add_filter( 'litespeed_optimize_js_excludes', 'tpa_janetcanfield_litespeed_js_exclusions' );
+add_filter( 'litespeed_optm_js_defer_exc', 'tpa_janetcanfield_litespeed_js_exclusions' );
+
 // ── ACF field groups ───────────────────────────────────────────────────────
 add_action('acf/init', function() {
     if (!function_exists('acf_add_local_field_group')) return;
@@ -426,3 +724,77 @@ add_action('acf/init', function() {
         'menu_order'=>0,'position'=>'normal','style'=>'default','label_placement'=>'top',
     ]);
 });
+
+/**
+ * AI crawler policy — reviewed 2026-09-17.
+ *
+ * Rule of thumb: block crawlers that harvest for MODEL TRAINING; allow the ones
+ * that fetch at ANSWER TIME, because those are what cite and link back.
+ *
+ * Google-Extended and PerplexityBot are added to robots.txt by a plugin further
+ * up this filter chain. Both blocks were counterproductive:
+ *
+ *  - Google-Extended does NOT affect AI Overviews or AI Mode. Those are Search,
+ *    served from the Googlebot index. Per Google's crawler docs: "Google-Extended
+ *    does not impact a site's inclusion in Google Search nor is it used as a
+ *    ranking signal in Google Search." It DOES gate Gemini Apps / Vertex AI
+ *    grounding, so blocking it only cost us Gemini citations. Accepted tradeoff:
+ *    our content may also be used to train future Gemini models.
+ *  - PerplexityBot is Perplexity's search-index bot — per their docs, "not used
+ *    to crawl content for AI foundation models." Blocking it was pure lost
+ *    referral traffic for no training benefit.
+ *
+ * Still blocked upstream, intentionally: GPTBot, ClaudeBot, anthropic-ai, CCBot,
+ * Bytespider, Amazonbot, FacebookBot, meta-externalagent, Applebot-Extended,
+ * omgili/omgilibot, SentiBot.
+ *
+ * Note that training and retrieval are separate product tokens for the same
+ * vendor — GPTBot != OAI-SearchBot, ClaudeBot != Claude-SearchBot — and matching
+ * is on the exact token, so blocking one never blocks the other. The retrieval
+ * tokens are allowed by omission; do not add Allow: groups for them, since a
+ * named group makes that bot ignore "User-agent: *" and lose the wpforms/wpo
+ * exclusions.
+ *
+ * Priority 99 so this sees the fully assembled output from every other plugin.
+ */
+add_filter('robots_txt', function ($output) {
+    if (!is_string($output) || $output === '') {
+        return $output;
+    }
+
+    // Product tokens to stop blocking. Lowercase — robots.txt user-agent
+    // matching is case-insensitive.
+    $unblock = ['google-extended', 'perplexitybot'];
+
+    $normalised = preg_replace('/\R/', "\n", $output);
+    $chunks     = preg_split('/\n\s*\n/', trim($normalised));
+    $out        = [];
+
+    foreach ($chunks as $chunk) {
+        $kept    = [];
+        $agents  = 0;
+        $dropped = 0;
+
+        foreach (explode("\n", $chunk) as $line) {
+            if (preg_match('/^\s*user-agent\s*:\s*(\S+)\s*$/i', $line, $m)) {
+                $agents++;
+                if (in_array(strtolower($m[1]), $unblock, true)) {
+                    $dropped++;
+                    continue;
+                }
+            }
+            $kept[] = $line;
+        }
+
+        // The group existed only to block tokens we are unblocking. Drop it
+        // whole, so its orphaned "Disallow: /" cannot attach to the next group
+        // and silently block something else.
+        if ($agents > 0 && $agents === $dropped) {
+            continue;
+        }
+
+        $out[] = implode("\n", $kept);
+    }
+
+    return implode("\n\n", $out) . "\n";
+}, 99);
