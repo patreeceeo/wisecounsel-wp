@@ -11,8 +11,8 @@
  * Markup it supports (both forms work):
  *   Hand-written:  div.ln-bio-card > div.ln-bio-card-photo > (picture|img)
  *                                  > div.ln-bio-card-body > span.ln-bio-card-name + p…
- *   Block pattern: div.wp-block-group.ln-bio-card > figure.wp-block-image.ln-bio-card-photo > img
- *                                  > div.wp-block-group.ln-bio-card-body > p.ln-bio-card-name + p…
+ *   Block pattern: div.wp-block-columns.ln-bio-card > div.wp-block-column.ln-bio-card-photo > figure > img
+ *                                  > div.wp-block-column.ln-bio-card-body > p.ln-bio-card-name + p…
  *
  * Inner selectors are prefixed with .ln-bio-card so they outrank
  * .service-body p etc. from client.css, which loads after this file.
@@ -26,6 +26,13 @@
    onto the <img> if someone drags the resize handle. */
 .ln-bio-card .ln-bio-card-photo img{position:absolute;inset:0;width:100% !important;height:100% !important;aspect-ratio:auto !important;
   object-fit:cover;object-position:center 16%;display:block;max-width:none}
+/* Block editor only: the image block wraps its <img> in a position:relative
+   .components-resizable-box__container that has no height of its own (the img
+   is absolutely positioned, so it contributes none). That box became the img's
+   containing block, so inset:0 resolved to zero height. Making it static hands
+   the containing block back to .ln-bio-card-photo (or the column wrapping it).
+   The class never appears on the published site. */
+.ln-bio-card .ln-bio-card-photo .components-resizable-box__container{position:static !important;width:auto !important;height:auto !important}
 .ln-bio-card .ln-bio-card-body{padding:30px 34px;display:flex;flex-direction:column;justify-content:center}
 .ln-bio-card .ln-bio-card-name{display:block;font-family:var(--font-head,'Alegreya',serif);font-weight:700;color:var(--primary-dark,#6E5636);
   font-size:1.32rem;line-height:1.3;margin:0 0 10px}
