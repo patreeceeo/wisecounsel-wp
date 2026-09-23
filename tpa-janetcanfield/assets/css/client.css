@@ -696,8 +696,33 @@ body.page-privacy-policy .fade-in{
 }
 
 .bg-dark-sage {
-  background-color: var(--bg-dark-sage);
-  color: #F5F1E8
+  background-color: var(--dark-sage);
+}
+/* Excludes .bg-light-tan elements and everything inside them */
+.bg-dark-sage,
+.bg-dark-sage *:not(.bg-light-gold, .bg-light-gold *) {
+  color: #F5F1E8 !important;
+}
+
+.bg-light-gold {
+  background-color: var(--gold);
+}
+.bg-light-gold,
+.bg-light-gold *:not(.bg-dark-sage, .bg-dark-sage *) {
+  color: var(--dark-sage) !important;
+}
+
+.ln-step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 16px;
 }
 
 
