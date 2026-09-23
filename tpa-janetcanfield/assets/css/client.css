@@ -694,3 +694,10 @@ body.page-privacy-policy .fade-in{
     stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
   }
 }
+
+.bg-sage {
+  background-color: (--bg-sage);
+  color: #F5F1E8
+}
+
+
