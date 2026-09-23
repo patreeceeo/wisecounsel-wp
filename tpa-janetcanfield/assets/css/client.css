@@ -198,7 +198,7 @@ body.page-faq .inner-hero-bg{object-position:center 24%}               /* show t
 body.page-career-counseling .inner-hero-bg{object-position:center 68%} /* show the downtown office buildings + street */
 body.page-individual-therapy .inner-hero-bg{object-position:center 10%} /* show more of the therapist + client above the hands */
 .inner-hero-content h1,.inner-page-title{color:#FDFCF8;font-family:var(--font-head);font-weight:600;font-size:clamp(1.7rem,3.4vw,2.5rem);line-height:1.12;text-shadow:none;margin:0}
-.inner-content{padding:96px 0 40px;background:var(--bg)}
+.inner-content{margin:96px 0 40px;background:var(--bg)}
 /* About's closing CTA is the ONLY child of its section, so the generic
    .svc-close-cta top margin (meant to separate it from body copy on service
    pages) stacked on the section padding — 140px above the card vs 40px below.
