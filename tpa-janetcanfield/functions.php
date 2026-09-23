@@ -68,12 +68,23 @@ function tpa_janetcanfield_enqueue() {
             filemtime($child_dir . '/assets/css/card.css')
         );
     }
+
+    // How It Works band (patterns/how-it-works.php) — same deal as the card:
+    // only on pages whose content uses it, "-client" handle so it's inlined.
+    if ( is_singular() && preg_match( '/\bln-process\b/', (string) get_post_field( 'post_content', get_queried_object_id() ) ) ) {
+        wp_enqueue_style(
+            'tpa-janetcanfield-steps-client',
+            $child_uri . '/assets/css/steps.css',
+            [],
+            filemtime($child_dir . '/assets/css/steps.css')
+        );
+    }
 }
 add_action('wp_enqueue_scripts', 'tpa_janetcanfield_enqueue', 20);
 
 // Block editor: pattern category for the theme's patterns/ folder (WordPress
-// registers the files in it automatically), and the card styles inside the
-// editor canvas so the pattern previews the way it renders on the site.
+// registers the files in it automatically), and the card + How It Works styles
+// inside the editor canvas so the patterns preview the way they render on the site.
 add_action('init', function () {
     register_block_pattern_category('wise-counsel', ['label' => __('Wise Counsel', 'tpa-janetcanfield')]);
 });
@@ -81,8 +92,32 @@ add_action('enqueue_block_assets', function () {
     if ( ! is_admin() ) {
         return;
     }
-    $path = get_stylesheet_directory() . '/assets/css/card.css';
-    wp_enqueue_style('tpa-janetcanfield-card-editor', get_stylesheet_directory_uri() . '/assets/css/card.css', [], filemtime($path));
+    $dir = get_stylesheet_directory();
+    $uri = get_stylesheet_directory_uri();
+    wp_enqueue_style('tpa-janetcanfield-card-editor', $uri . '/assets/css/card.css', [], filemtime($dir . '/assets/css/card.css'));
+    wp_enqueue_style('tpa-janetcanfield-steps-editor', $uri . '/assets/css/steps.css', [], filemtime($dir . '/assets/css/steps.css'));
+
+    // The site's fonts are declared inline in header.php, which the editor
+    // never loads, so patterns fell back to a generic serif/sans there.
+    // Same files, same faces as tpa_janetcanfield_font_faces().
+    $faces = [
+        [ 'Figtree',  'normal', '300 900', 'figtree-300-900-normal.woff2' ],
+        [ 'Figtree',  'italic', '300 900', 'figtree-300-900-italic.woff2' ],
+        [ 'Alegreya', 'normal', '400 900', 'alegreya-400-900-normal.woff2' ],
+        [ 'Alegreya', 'italic', '400 900', 'alegreya-400-900-italic.woff2' ],
+    ];
+    $css = '';
+    foreach ( $faces as $f ) {
+        if ( file_exists( $dir . '/assets/fonts/' . $f[3] ) ) {
+            $css .= sprintf(
+                "@font-face{font-family:'%s';font-style:%s;font-weight:%s;font-display:swap;src:url(%s) format('woff2')}",
+                $f[0], $f[1], $f[2], esc_url( $uri . '/assets/fonts/' . $f[3] )
+            );
+        }
+    }
+    if ( $css ) {
+        wp_add_inline_style('tpa-janetcanfield-steps-editor', $css);
+    }
 });
 
 // Defer the full (below-fold) client.css with high-priority preload.

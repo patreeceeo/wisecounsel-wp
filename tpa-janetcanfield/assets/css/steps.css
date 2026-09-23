@@ -1,0 +1,76 @@
+/*
+ * How It Works — dark-sage band with a kicker, a heading and three numbered
+ * step cards that glow in turn.
+ *
+ *   section.ln-sec.ln-process > .ln-wrap > .ln-kicker + h2 + .ln-steps
+ *                                          .ln-steps > .ln-step × 3
+ *                                          .ln-step  > .ln-step-num + h3 + p
+ *   (Pattern: patterns/how-it-works.php — Group > Group > Paragraph, Heading,
+ *   Columns > Column × 3. Landing page: page-landing-nest.php, where the
+ *   kicker/h2 sit in an extra .ln-rev div and the number is a <span>.)
+ *
+ * Single source for every How It Works section on the site:
+ *  - page-landing-nest.php inlines this file into its <style> block.
+ *  - Inner pages enqueue it only when post_content contains "ln-process"
+ *    (see tpa_janetcanfield_enqueue in functions.php).
+ *  - The block editor loads it via enqueue_block_assets.
+ *
+ * Every rule is prefixed .ln-sec.ln-process so it outranks what the section
+ * lands inside: .service-body h2/h3/p from client.css (which loads after this
+ * file) on inner pages, and the editor's default block spacing and 840px
+ * block width in the block editor. Properties the landing page inherited
+ * from its body/.ln rules (font, line-height, weight) are set explicitly for
+ * the same reason. Colour fallbacks match :root in client-critical.css.
+ *
+ * Classic theme (no theme.json): WordPress wraps Group contents in
+ * .wp-block-group__inner-container. Only descendant selectors are used here,
+ * so that extra div is harmless.
+ */
+
+section.ln-sec.ln-process{display:block;box-sizing:border-box;max-width:none;margin:0;padding:80px 0;
+  background:var(--dark-sage,#35443C);text-align:center;
+  font-family:var(--font-body,'Figtree',sans-serif);font-size:17px;line-height:1.7;color:var(--text,#2D2A26)}
+.ln-sec.ln-process .ln-wrap{box-sizing:border-box;max-width:1120px;margin:0 auto;padding:0 26px}
+
+/* Kicker: small caps label with a short rule after it */
+.ln-sec.ln-process p.ln-kicker,
+.ln-sec.ln-process div.ln-kicker{display:flex;align-items:center;justify-content:center;gap:10px;max-width:none;margin:0 0 10px;
+  font-family:var(--font-body,'Figtree',sans-serif);font-size:.82rem;font-weight:600;line-height:1.7;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--gold,#EAD9BC)}
+.ln-sec.ln-process .ln-kicker::after{content:"";height:1px;width:44px;background:var(--gold,#EAD9BC);opacity:.6}
+
+.ln-sec.ln-process h2{max-width:none;margin:0 0 14px;font-family:var(--font-head,'Alegreya',serif);font-weight:700;
+  font-size:clamp(1.9rem,3.3vw,2.6rem);line-height:1.15;letter-spacing:normal;color:#F5F1E8;text-wrap:pretty}
+
+/* Steps grid. align-items: the pattern builds this as a Columns block, and
+   WordPress's layout CSS gives .is-layout-flex align-items:center, which
+   would make the cards different heights. */
+.ln-sec.ln-process .ln-steps{display:grid;grid-template-columns:repeat(3,1fr);align-items:stretch;gap:26px;max-width:none;margin:40px 0 0;padding:0}
+.ln-sec.ln-process .ln-step{box-sizing:border-box;min-width:0;max-width:none;margin:0;
+  background:rgba(253,252,248,.05);border:1px solid rgba(234,217,188,.18);border-radius:16px;padding:34px 26px;text-align:center;
+  animation:phaseGlow 10.5s ease-in-out infinite}
+.ln-sec.ln-process .ln-step:nth-child(2){animation-delay:3.5s}
+.ln-sec.ln-process .ln-step:nth-child(3){animation-delay:7s}
+@keyframes phaseGlow{
+  0%,72%,100%{border-color:rgba(234,217,188,.18);box-shadow:0 0 0 0 rgba(234,217,188,0)}
+  36%{border-color:rgba(234,217,188,.62);box-shadow:0 0 0 1px rgba(234,217,188,.4),0 0 30px -4px rgba(234,217,188,.42)}
+}
+@media (prefers-reduced-motion:reduce){.ln-sec.ln-process .ln-step{animation:none}}
+
+.ln-sec.ln-process .ln-step .ln-step-num{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;
+  max-width:none;margin:0 0 16px;padding:0;border-radius:50%;background:var(--gold,#EAD9BC);color:var(--walnut,#5C4A31);
+  font-family:var(--font-head,'Alegreya',serif);font-weight:700;font-size:1.5rem;line-height:1.7;letter-spacing:normal}
+.ln-sec.ln-process .ln-step h3{max-width:none;margin:0 0 10px;font-family:var(--font-head,'Alegreya',serif);font-weight:700;
+  font-size:1.35rem;line-height:1.15;letter-spacing:normal;color:#F5F1E8;text-wrap:pretty}
+.ln-sec.ln-process .ln-step p:not(.ln-step-num){max-width:none;margin:0;font-family:var(--font-body,'Figtree',sans-serif);
+  font-size:.98rem;line-height:1.7;color:rgba(245,241,232,.82);text-wrap:pretty}
+.ln-sec.ln-process .ln-step p strong{font-weight:700;color:inherit}
+.ln-sec.ln-process .ln-step .ln-step-tag{display:block;margin-top:12px;color:var(--gold,#EAD9BC);font-family:var(--font-head,'Alegreya',serif);font-style:italic;font-size:1.02rem}
+
+@media (max-width:960px){.ln-sec.ln-process .ln-steps{grid-template-columns:1fr}}
+@media (max-width:560px){section.ln-sec.ln-process{padding:56px 0}}
+
+/* Inner pages (page.php): the body sits in .container > .service-body, capped
+   at 1080px. Break the band out to the full viewport width like the landing
+   page. html/body have overflow-x:clip, so 100vw's scrollbar overhang is cut. */
+.service-body section.ln-sec.ln-process{margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw)}

@@ -183,24 +183,8 @@ $twig = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBo
   .ln-benefits{list-style:none;margin-top:16px}
   .ln-benefits li{position:relative;padding:8px 0 8px 32px;color:var(--text);margin-bottom:2px}
   .ln-benefits li::before{content:"";position:absolute;left:0;top:12px;width:16px;height:10px;border-left:2.4px solid var(--accent-dark);border-bottom:2.4px solid var(--accent-dark);transform:rotate(-45deg)}
-  /* process */
-  .ln-process{background:var(--dark-sage);text-align:center}
-  .ln-process h2{color:#F5F1E8}
-  .ln-process .ln-kicker{color:var(--gold);justify-content:center}.ln-process .ln-kicker::after{background:var(--gold)}
-  .ln-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:40px}
-  .ln-step{background:rgba(253,252,248,.05);border:1px solid rgba(234,217,188,.18);border-radius:16px;padding:34px 26px;text-align:center;
-    animation:phaseGlow 10.5s ease-in-out infinite}
-  .ln-step:nth-child(2){animation-delay:3.5s}
-  .ln-step:nth-child(3){animation-delay:7s}
-  @keyframes phaseGlow{
-    0%,72%,100%{border-color:rgba(234,217,188,.18);box-shadow:0 0 0 0 rgba(234,217,188,0)}
-    36%{border-color:rgba(234,217,188,.62);box-shadow:0 0 0 1px rgba(234,217,188,.4),0 0 30px -4px rgba(234,217,188,.42)}
-  }
-  @media (prefers-reduced-motion:reduce){.ln-step{animation:none}}
-  .ln-step-num{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:var(--gold);color:var(--walnut);font-family:var(--font-head);font-weight:700;font-size:1.5rem;margin-bottom:16px}
-  .ln-step h3{color:#F5F1E8;font-size:1.35rem;margin-bottom:10px}
-  .ln-step p{color:rgba(245,241,232,.82);font-size:.98rem}
-  .ln-step .ln-step-tag{display:block;margin-top:12px;color:var(--gold);font-family:var(--font-head);font-style:italic;font-size:1.02rem}
+  /* process (How It Works) — shared with the block editor pattern; single source in assets/css/steps.css */
+  <?php $tpa_steps_css = get_theme_file_path('assets/css/steps.css'); if (is_readable($tpa_steps_css)) { readfile($tpa_steps_css); } ?>
   /* trust */
   .ln-trust{background:var(--bg)}
   .ln-trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:34px}
