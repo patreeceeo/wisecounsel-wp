@@ -695,8 +695,8 @@ body.page-privacy-policy .fade-in{
   }
 }
 
-.bg-sage {
-  background-color: var(--bg-sage);
+.bg-dark-sage {
+  background-color: var(--bg-dark-sage);
   color: #F5F1E8
 }
 
