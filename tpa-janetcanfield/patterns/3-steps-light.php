@@ -1,20 +1,20 @@
 <?php
 /**
- * Title: How It Works (three steps)
- * Slug: tpa-janetcanfield/how-it-works
+ * Title: 3 Steps (Light Version)
+ * Slug: tpa-janetcanfield/3-steps-light
  * Categories: wise-counsel
  * Keywords: how it works, process, steps, phases, three, numbered
- * Description: Full-width dark-sage band with a kicker, a heading and three numbered step cards that glow in turn — the "How It Works" section from the LGBTQ+ Christian therapy landing page. Styles live in assets/css/steps.css.
+ * Description: The How It Works pattern on a light cream band (#FAF8F5) with dark-sage text and card outlines. Styles live in assets/css/steps.css (see "Light variant").
  * Viewport Width: 1200
  *
  * Auto-registered by WordPress from the theme's patterns/ folder.
  * Inserted copies are independent — edit every word in place.
- * Keep the "ln-*" classes under Block → Advanced → Additional CSS class.
+ * Keep the "ln-*" classes (including ln-process-light, which makes it the light version) under Block → Advanced → Additional CSS class.
  * Built for three steps; a fourth column wraps onto a new row.
  */
 ?>
-<!-- wp:group {"tagName":"section","className":"ln-sec ln-process"} -->
-<section class="wp-block-group ln-sec ln-process"><!-- wp:group {"className":"ln-wrap"} -->
+<!-- wp:group {"tagName":"section","className":"ln-sec ln-process ln-process-light"} -->
+<section class="wp-block-group ln-sec ln-process ln-process-light"><!-- wp:group {"className":"ln-wrap"} -->
 <div class="wp-block-group ln-wrap"><!-- wp:paragraph {"className":"ln-kicker"} -->
 <p class="ln-kicker">How It Works</p>
 <!-- /wp:paragraph -->
