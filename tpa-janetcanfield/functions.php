@@ -69,7 +69,7 @@ function tpa_janetcanfield_enqueue() {
         );
     }
 
-    // How It Works band (patterns/how-it-works.php) — same deal as the card:
+    // How It Works band (patterns/3-steps-dark.php) — same deal as the card:
     // only on pages whose content uses it, "-client" handle so it's inlined.
     if ( is_singular() && preg_match( '/\bln-process\b/', (string) get_post_field( 'post_content', get_queried_object_id() ) ) ) {
         wp_enqueue_style(
