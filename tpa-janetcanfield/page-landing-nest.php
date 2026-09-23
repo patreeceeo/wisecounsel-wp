@@ -194,22 +194,8 @@ $twig = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBo
   .ln-pillar .twig{margin-bottom:14px}
   /* quick-bio card — shared with the block editor patterns; single source in assets/css/card.css */
   <?php $tpa_bio_css = get_theme_file_path('assets/css/card.css'); if (is_readable($tpa_bio_css)) { readfile($tpa_bio_css); } ?>
-  /* faq */
-  .ln-faq{background:var(--bg-tan)}
-  .ln-faq-list{max-width:820px;margin:30px auto 0}
-  .ln-faq-item{position:relative;border-bottom:1px solid rgba(139,111,71,.2)}
-  .ln-faq-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);transform:scaleY(0);transform-origin:top;transition:transform .4s cubic-bezier(.25,1,.5,1)}
-  .ln-faq-item.open{background:linear-gradient(90deg,rgba(234,217,188,.16),transparent 70%)}
-  .ln-faq-item.open::before{transform:scaleY(1)}
-  .ln-faq-q{width:100%;text-align:left;background:none;border:none;cursor:pointer;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:24px 18px;font-family:var(--font-head);font-weight:600;font-size:1.24rem;color:var(--text);transition:color .25s}
-  .ln-faq-item.open .ln-faq-q{color:var(--primary-dark)}
-  .ln-faq-ic{flex:none;width:15px;height:15px;position:relative;margin-top:8px;transition:transform .4s cubic-bezier(.25,1,.5,1)}
-  .ln-faq-ic::after{content:"";position:absolute;top:1px;left:3px;width:9px;height:9px;border-right:2px solid var(--accent-dark);border-bottom:2px solid var(--accent-dark);transform:rotate(45deg)}
-  .ln-faq-item.open .ln-faq-ic{transform:rotate(180deg)}.ln-faq-item.open .ln-faq-ic::after{border-color:var(--secondary)}
-  .ln-faq-a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s cubic-bezier(.25,1,.5,1)}
-  .ln-faq-item.open .ln-faq-a{grid-template-rows:1fr}
-  .ln-faq-a-in{overflow:hidden}
-  .ln-faq-a-in p{color:var(--text-soft);font-size:1.05rem;line-height:1.8;padding:0 44px 24px 18px}
+  /* faq — shared with the block editor pattern; single source in assets/css/faq.css */
+  <?php $tpa_faq_css = get_theme_file_path('assets/css/faq.css'); if (is_readable($tpa_faq_css)) { readfile($tpa_faq_css); } ?>
   /* next */
   .ln-next{background:var(--bg);text-align:center}
   .ln-next-lead{max-width:640px;margin:0 auto 8px;color:var(--text-soft)}

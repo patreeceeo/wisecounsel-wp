@@ -79,12 +79,22 @@ function tpa_janetcanfield_enqueue() {
             filemtime($child_dir . '/assets/css/steps.css')
         );
     }
+
+    // FAQ accordion (patterns/faq.php) — same again.
+    if ( is_singular() && preg_match( '/\bln-faq\b/', (string) get_post_field( 'post_content', get_queried_object_id() ) ) ) {
+        wp_enqueue_style(
+            'tpa-janetcanfield-faq-client',
+            $child_uri . '/assets/css/faq.css',
+            [],
+            filemtime($child_dir . '/assets/css/faq.css')
+        );
+    }
 }
 add_action('wp_enqueue_scripts', 'tpa_janetcanfield_enqueue', 20);
 
 // Block editor: pattern category for the theme's patterns/ folder (WordPress
-// registers the files in it automatically), and the card + How It Works styles
-// inside the editor canvas so the patterns preview the way they render on the site.
+// registers the files in it automatically), and the card, How It Works and FAQ
+// styles inside the editor canvas so the patterns preview the way they render on the site.
 add_action('init', function () {
     register_block_pattern_category('wise-counsel', ['label' => __('Wise Counsel', 'tpa-janetcanfield')]);
 });
@@ -96,6 +106,7 @@ add_action('enqueue_block_assets', function () {
     $uri = get_stylesheet_directory_uri();
     wp_enqueue_style('tpa-janetcanfield-card-editor', $uri . '/assets/css/card.css', [], filemtime($dir . '/assets/css/card.css'));
     wp_enqueue_style('tpa-janetcanfield-steps-editor', $uri . '/assets/css/steps.css', [], filemtime($dir . '/assets/css/steps.css'));
+    wp_enqueue_style('tpa-janetcanfield-faq-editor', $uri . '/assets/css/faq.css', [], filemtime($dir . '/assets/css/faq.css'));
 
     // The site's fonts are declared inline in header.php, which the editor
     // never loads, so patterns fell back to a generic serif/sans there.
@@ -318,6 +329,7 @@ function tpa_janetcanfield_safe_autop( $content ) {
         'thead', 'tbody', 'tr', 'td', 'th',
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'ul', 'ol', 'li', 'p', 'img',
+        'details', 'summary', // Details block (patterns/faq.php)
     ];
 
     $lines  = preg_split( '/\r\n|\r|\n/', $content );

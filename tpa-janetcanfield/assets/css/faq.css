@@ -1,0 +1,106 @@
+/*
+ * FAQ — tan band with a kicker, a heading and an accordion of questions.
+ * Opening one question closes the others; the open one gets a gold bar on
+ * the left, a warm wash, a darker question and a flipped chevron.
+ *
+ * Two markups, one look:
+ *
+ *   Pattern (patterns/faq.php) — native <details>, so it needs no script:
+ *     section.ln-sec.ln-faq > .ln-wrap > .ln-kicker + h2 + .ln-faq-list
+ *       .ln-faq-list > details.ln-faq-item[name] × n
+ *       details > summary (the question) + .ln-faq-a-in > p…
+ *     Shared name="…" makes the browser close the other items. The chevron is
+ *     summary::after. The answer's slide is ::details-content animating
+ *     grid-template-rows; browsers without ::details-content just open
+ *     instantly.
+ *
+ *   Landing page (page-landing-nest.php) — button + script:
+ *     .ln-faq-item(.open) > button.ln-faq-q > span + span.ln-faq-ic
+ *                          + .ln-faq-a > .ln-faq-a-in > p…
+ *
+ * Single source for every FAQ section on the site:
+ *  - page-landing-nest.php inlines this file into its <style> block.
+ *  - Inner pages enqueue it only when post_content contains "ln-faq"
+ *    (see tpa_janetcanfield_enqueue in functions.php).
+ *  - The block editor loads it via enqueue_block_assets.
+ *
+ * Every rule is prefixed .ln-sec.ln-faq so it outranks .service-body h2/p
+ * from client.css and the editor's default block spacing; inherited
+ * properties are set explicitly for the same reason. Only descendant
+ * selectors are used, so the .wp-block-group__inner-container that classic
+ * themes add inside Groups is harmless. Colour fallbacks match :root in
+ * client-critical.css.
+ */
+
+section.ln-sec.ln-faq{display:block;box-sizing:border-box;max-width:none;margin:0;padding:80px 0;
+  background:var(--bg-tan,#F3EDE3);
+  font-family:var(--font-body,'Figtree',sans-serif);font-size:17px;line-height:1.7;color:var(--text,#2D2A26)}
+.ln-sec.ln-faq .ln-wrap{box-sizing:border-box;max-width:1120px;margin:0 auto;padding:0 26px;text-align:center}
+
+/* Kicker + heading */
+.ln-sec.ln-faq p.ln-kicker,
+.ln-sec.ln-faq div.ln-kicker{display:flex;align-items:center;justify-content:center;gap:10px;max-width:none;margin:0 0 10px;
+  font-family:var(--font-body,'Figtree',sans-serif);font-size:.82rem;font-weight:600;line-height:1.7;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent-dark,#54705F)}
+.ln-sec.ln-faq .ln-kicker::after{content:"";height:1px;width:44px;background:var(--accent,#6B8B7A);opacity:.6}
+.ln-sec.ln-faq h2{max-width:none;margin:0 0 14px;font-family:var(--font-head,'Alegreya',serif);font-weight:700;
+  font-size:clamp(1.9rem,3.3vw,2.6rem);line-height:1.15;letter-spacing:normal;color:var(--text,#2D2A26);text-wrap:pretty}
+
+/* List + items */
+.ln-sec.ln-faq .ln-faq-list{box-sizing:border-box;max-width:820px;margin:30px auto 0;padding:0;text-align:left}
+.ln-sec.ln-faq .ln-faq-item{position:relative;box-sizing:border-box;max-width:none;margin:0;padding:0;
+  border:0;border-bottom:1px solid rgba(139,111,71,.2);border-radius:0;background:none}
+.ln-sec.ln-faq .ln-faq-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold,#EAD9BC);
+  transform:scaleY(0);transform-origin:top;transition:transform .4s cubic-bezier(.25,1,.5,1)}
+.ln-sec.ln-faq :is(.ln-faq-item.open,details.ln-faq-item[open]){background:linear-gradient(90deg,rgba(234,217,188,.16),transparent 70%)}
+.ln-sec.ln-faq :is(.ln-faq-item.open,details.ln-faq-item[open])::before{transform:scaleY(1)}
+
+/* Question row. line-height:normal is what the landing page's <button>
+   gets from the browser; the summary copies it so rows are the same height. */
+.ln-sec.ln-faq .ln-faq-q,
+.ln-sec.ln-faq details.ln-faq-item > summary{box-sizing:border-box;width:100%;margin:0;background:none;border:none;cursor:pointer;text-align:left;
+  font-family:var(--font-head,'Alegreya',serif);font-weight:600;font-size:1.24rem;line-height:normal;letter-spacing:normal;
+  text-transform:none;color:var(--text,#2D2A26);transition:color .25s}
+.ln-sec.ln-faq .ln-faq-q{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:24px 18px}
+.ln-sec.ln-faq :is(.ln-faq-item.open .ln-faq-q,details.ln-faq-item[open] > summary){color:var(--primary-dark,#6E5636)}
+
+/* Landing page chevron: a 15px box that flips, holding a rotated L. */
+.ln-sec.ln-faq .ln-faq-ic{flex:none;width:15px;height:15px;position:relative;margin-top:8px;transition:transform .4s cubic-bezier(.25,1,.5,1)}
+.ln-sec.ln-faq .ln-faq-ic::after{content:"";position:absolute;top:1px;left:3px;width:9px;height:9px;box-sizing:border-box;
+  border-right:2px solid var(--accent-dark,#54705F);border-bottom:2px solid var(--accent-dark,#54705F);transform:rotate(45deg)}
+.ln-sec.ln-faq .ln-faq-item.open .ln-faq-ic{transform:rotate(180deg)}
+.ln-sec.ln-faq .ln-faq-item.open .ln-faq-ic::after{border-color:var(--secondary,#A68B5B)}
+
+/* Pattern: same row built on <summary>. Block layout (not flex) so bold or
+   italic words in a question stay inline; the right padding is the button's
+   18px + 15px icon + 20px gap, so text wraps at the same width. The chevron
+   is the same L drawn as a mask in the same 15px box, so it flips about the
+   same point and takes its colour from background-color. */
+.ln-sec.ln-faq details.ln-faq-item > summary{display:block;position:relative;list-style:none;padding:24px 53px 24px 18px}
+.ln-sec.ln-faq details.ln-faq-item > summary::-webkit-details-marker{display:none}
+.ln-sec.ln-faq details.ln-faq-item > summary::after{content:"";position:absolute;top:32px;right:18px;width:15px;height:15px;
+  background-color:var(--accent-dark,#54705F);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 15 15'%3E%3Cpath transform='rotate(45 7.5 5.5)' d='M10 1h2v9H3V8h7z'/%3E%3C/svg%3E") center/15px 15px no-repeat;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 15 15'%3E%3Cpath transform='rotate(45 7.5 5.5)' d='M10 1h2v9H3V8h7z'/%3E%3C/svg%3E") center/15px 15px no-repeat;
+  transition:transform .4s cubic-bezier(.25,1,.5,1)}
+.ln-sec.ln-faq details.ln-faq-item[open] > summary::after{transform:rotate(180deg);background-color:var(--secondary,#A68B5B)}
+.ln-sec.ln-faq details.ln-faq-item > summary:focus:not(:focus-visible){outline:none}
+
+/* Answer */
+.ln-sec.ln-faq .ln-faq-a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s cubic-bezier(.25,1,.5,1)}
+.ln-sec.ln-faq .ln-faq-item.open .ln-faq-a{grid-template-rows:1fr}
+.ln-sec.ln-faq .ln-faq-a-in{min-height:0;max-width:none;margin:0;padding:0;overflow:hidden}
+.ln-sec.ln-faq .ln-faq-a-in p{max-width:none;margin:0;padding:0 44px 24px 18px;
+  font-family:var(--font-body,'Figtree',sans-serif);font-size:1.05rem;line-height:1.8;letter-spacing:normal;color:var(--text-soft,#5C554B);text-wrap:pretty}
+
+/* Pattern's slide open/closed. Kept apart from the rules above: a browser
+   that doesn't know ::details-content drops only these two rules. */
+.ln-sec.ln-faq details.ln-faq-item::details-content{display:grid;grid-template-rows:0fr;
+  transition:grid-template-rows .4s cubic-bezier(.25,1,.5,1),content-visibility .4s allow-discrete}
+.ln-sec.ln-faq details.ln-faq-item[open]::details-content{grid-template-rows:1fr}
+
+@media (max-width:560px){section.ln-sec.ln-faq{padding:56px 0}}
+
+/* Inner pages (page.php): break out of the 1080px .service-body column to the
+   full viewport width, like the landing page. html/body clip overflow-x. */
+.service-body section.ln-sec.ln-faq{margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw)}
