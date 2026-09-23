@@ -80,17 +80,16 @@ section.ln-sec.ln-process{display:block;box-sizing:border-box;max-width:none;mar
    Same layout; the band is the page cream (#FAF8F5) and everything that was
    light-on-sage — heading, step titles, body copy, kicker, card outlines and
    their glow — is dark sage instead, at the same opacities as the original.
-   The gold number discs are unchanged. Unlike the original, each card is only
-   as tall as its own content instead of all three stretching to match the
-   tallest. That's align-self on the cards, not align-items on the grid,
-   because the editor's Columns CSS sets align-items:normal !important. */
+   The number discs flip too: dark sage with cream numbers. As in the
+   original, all three cards stretch to the height of the tallest one. */
 section.ln-sec.ln-process.ln-process-light{background:#FAF8F5}
 .ln-sec.ln-process.ln-process-light :is(p.ln-kicker,div.ln-kicker){color:var(--dark-sage,#35443C)}
 .ln-sec.ln-process.ln-process-light .ln-kicker::after{background:var(--dark-sage,#35443C)}
 .ln-sec.ln-process.ln-process-light h2,
 .ln-sec.ln-process.ln-process-light .ln-step h3{color:var(--dark-sage,#35443C)}
 .ln-sec.ln-process.ln-process-light .ln-step p:not(.ln-step-num){color:rgba(53,68,60,.82)}
-.ln-sec.ln-process.ln-process-light .ln-step{align-self:start;border-color:rgba(53,68,60,.18);animation-name:phaseGlowSage}
+.ln-sec.ln-process.ln-process-light .ln-step .ln-step-num{background:var(--dark-sage,#35443C);color:var(--cream,#FDFCFA)}
+.ln-sec.ln-process.ln-process-light .ln-step{border-color:rgba(53,68,60,.18);animation-name:phaseGlowSage}
 @keyframes phaseGlowSage{
   0%,72%,100%{border-color:rgba(53,68,60,.18);box-shadow:0 0 0 0 rgba(53,68,60,0)}
   36%{border-color:rgba(53,68,60,.62);box-shadow:0 0 0 1px rgba(53,68,60,.4),0 0 30px -4px rgba(53,68,60,.42)}
